@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\GradeEnum;
+use App\Models\AcademicYear;
+use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +20,10 @@ class ExamFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->sentence(),
+            'academic_year_id' => AcademicYear::all()->random()->id,
+            'grade' => fake()->randomElement(GradeEnum::values()),
+            'teacher_id' => Teacher::all()->random()->id,
         ];
     }
 }

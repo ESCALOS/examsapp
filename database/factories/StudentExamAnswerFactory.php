@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\AlternativeEnum;
+use App\Models\Exam;
+use App\Models\Student;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +20,10 @@ class StudentExamAnswerFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'student_id' => Student::all()->random()->id,
+            'exam_id' => Exam::all()->random()->id,
+            'question_number' => fake()->numerify('##'),
+            'answer' => fake()->randomElement(AlternativeEnum::values()),
         ];
     }
 }

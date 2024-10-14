@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\GradeEnum;
+use App\Enums\SectionEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,12 +15,13 @@ class Teacher extends Model
         'user_id',
         'academic_year_id',
         'grade',
-        'section_id',
+        'section',
         'name',
     ];
 
     protected $casts = [
         'grade' => GradeEnum::class,
+        'section' => SectionEnum::class,
     ];
 
     // Relación con el modelo User
@@ -32,11 +34,5 @@ class Teacher extends Model
     public function academicYear()
     {
         return $this->belongsTo(AcademicYear::class);
-    }
-
-    // Relación con el modelo Section
-    public function section()
-    {
-        return $this->belongsTo(Section::class);
     }
 }

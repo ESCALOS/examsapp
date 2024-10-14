@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreSectionRequest;
-use App\Http\Requests\UpdateSectionRequest;
-use App\Models\Section;
+use App\Http\Requests\StoreStudentInfoRequest;
+use App\Http\Requests\UpdateStudentInfoRequest;
+use App\Models\StudentInfo;
 
-class SectionController extends Controller
+class StudentInfoController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class SectionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSectionRequest $request)
+    public function store(StoreStudentInfoRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class SectionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Section $section)
+    public function show(StudentInfo $studentInfo)
     {
         //
     }
@@ -43,7 +43,7 @@ class SectionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Section $section)
+    public function edit(StudentInfo $studentInfo)
     {
         //
     }
@@ -51,7 +51,7 @@ class SectionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSectionRequest $request, Section $section)
+    public function update(UpdateStudentInfoRequest $request, StudentInfo $studentInfo)
     {
         //
     }
@@ -59,7 +59,7 @@ class SectionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Section $section)
+    public function destroy(StudentInfo $studentInfo)
     {
         //
     }

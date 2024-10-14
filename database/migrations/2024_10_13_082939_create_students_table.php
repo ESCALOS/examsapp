@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\GradeEnum;
+use App\Enums\SectionEnum;
 use App\Enums\StudentStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,11 +17,10 @@ return new class extends Migration
 
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->string('dni', 12)->nullable()->unique();
-            $table->string('name');
+            $table->foreignId('student_info_id')->constrained()->onDelete('cascade');
             $table->foreignId('academic_year_id')->constrained()->onDelete('cascade');
             $table->enum('grade', GradeEnum::values());
-            $table->foreignId('section_id')->constrained()->onDelete('cascade');
+            $table->enum('section', SectionEnum::values());
             $table->enum('status', StudentStatusEnum::values())->default(StudentStatusEnum::Active->value);
             $table->timestamps();
         });

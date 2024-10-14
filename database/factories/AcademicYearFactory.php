@@ -17,7 +17,7 @@ class AcademicYearFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'year' => fake()->year(),
         ];
     }
 }
