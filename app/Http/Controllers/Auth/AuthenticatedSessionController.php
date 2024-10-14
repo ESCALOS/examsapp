@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
@@ -32,8 +33,19 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        // Verificar el rol del usuario autenticado
+        $user = Auth::user();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        if ($user->role === RoleEnum::ADMIN) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        if ($user->role === RoleEnum::TEACHER) {
+            return redirect()->intended(route('teacher.dashboard'));
+        }
+
+        // En caso de que no haya coincidencias de roles, puedes redirigir a una ruta por defecto
+        return redirect()->route('home');
     }
 
     /**
@@ -47,6 +59,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/login');
     }
 }

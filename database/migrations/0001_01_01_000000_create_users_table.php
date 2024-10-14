@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\RoleEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,7 +20,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('is_active')->default(true);
-            $table->enum('role', ['admin', 'teacher'])->default('teacher');
+            $table->enum('role', RoleEnum::values())->default(RoleEnum::TEACHER);
             $table->rememberToken();
             $table->timestamps();
         });

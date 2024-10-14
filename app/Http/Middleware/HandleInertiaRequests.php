@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -39,6 +40,10 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
+            'flash' => [
+                'message' => fn () => $request->session()->get('message'),
+            ],
+            'academicYears' => AcademicYear::all(),
         ];
     }
 }

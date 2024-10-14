@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreAcademicYearRequest;
+use App\Enums\RoleEnum;
 use App\Http\Requests\UpdateAcademicYearRequest;
 use App\Models\AcademicYear;
+use Illuminate\Support\Facades\Auth;
 
 class AcademicYearController extends Controller
 {
@@ -27,9 +28,26 @@ class AcademicYearController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAcademicYearRequest $request)
+    public function store()
     {
-        //
+        $currentYear = date('Y');
+
+        // Verificar si es administrador
+        if (Auth::user()->role !== RoleEnum::ADMIN) {
+            return back()->withErrors(['message' => 'No tienes los permisos necesarios']);
+        }
+
+        // Verificar si el año ya existe
+        if (AcademicYear::where('year', $currentYear)->exists()) {
+            return back()->withErrors(['message' => 'El año académico '.$currentYear.' ya existe']);
+        }
+
+        // Crear un nuevo año académico si no existe
+        AcademicYear::create([
+            'year' => $currentYear,
+        ]);
+
+        return back()->with('message', 'Año académico creado exitosamente');
     }
 
     /**

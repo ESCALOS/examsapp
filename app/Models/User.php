@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\RoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -23,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_active',
+        'role',
     ];
 
     /**
@@ -45,6 +48,22 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => RoleEnum::class,
         ];
+    }
+
+    public function teachers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Teacher::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === RoleEnum::ADMIN;
+    }
+
+    public function isTeacher(): bool
+    {
+        return $this->role === RoleEnum::TEACHER;
     }
 }

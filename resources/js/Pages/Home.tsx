@@ -1,6 +1,6 @@
 import { Head, Link } from "@inertiajs/react";
 
-export default function Welcome() {
+export default function Home() {
     return (
         <>
             <Head title="Inicio" />
@@ -15,7 +15,7 @@ export default function Welcome() {
                         Innovación y excelencia en cada proyecto
                     </p>
                     <Link
-                        href="/dashboard"
+                        href="/login"
                         className="inline-flex items-center px-4 py-2 mr-2 font-bold transition-colors duration-300 rounded-lg bg-primary-500 text-secondary-500 hover:bg-accent-500"
                     >
                         <svg
@@ -33,6 +33,9 @@ export default function Welcome() {
                             />
                         </svg>
                         Acceder a Intranet
+                    </Link>
+                    <Link href={route("logout")} method="post" as="button">
+                        Cerrar Sesión
                     </Link>
                 </main>
                 <footer className="mt-16 text-sm text-primary-500">

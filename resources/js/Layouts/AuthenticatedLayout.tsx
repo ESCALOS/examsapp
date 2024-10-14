@@ -30,12 +30,35 @@ export default function Authenticated({
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                    href={route("dashboard")}
-                                    active={route().current("dashboard")}
-                                >
-                                    Dashboard
-                                </NavLink>
+                                {user.role === "admin" ? (
+                                    <>
+                                        <NavLink
+                                            href={route("admin.dashboard")}
+                                            active={route().current(
+                                                "admin.dashboard"
+                                            )}
+                                        >
+                                            Inicio
+                                        </NavLink>
+                                        <NavLink
+                                            href={route("admin.classrooms")}
+                                            active={route().current(
+                                                "admin.classrooms"
+                                            )}
+                                        >
+                                            Aulas
+                                        </NavLink>
+                                    </>
+                                ) : (
+                                    <NavLink
+                                        href={route("teacher.dashboard")}
+                                        active={route().current(
+                                            "teacher.dashboard"
+                                        )}
+                                    >
+                                        Inicio
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
 
@@ -129,12 +152,29 @@ export default function Authenticated({
                     }
                 >
                     <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink
-                            href={route("dashboard")}
-                            active={route().current("dashboard")}
-                        >
-                            Inicio
-                        </ResponsiveNavLink>
+                        {user.role === "admin" ? (
+                            <>
+                                <ResponsiveNavLink
+                                    href={route("admin.dashboard")}
+                                    active={route().current("admin.dashboard")}
+                                >
+                                    Inicio
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink
+                                    href={route("admin.classrooms")}
+                                    active={route().current("admin.classrooms")}
+                                >
+                                    Aulas
+                                </ResponsiveNavLink>
+                            </>
+                        ) : (
+                            <ResponsiveNavLink
+                                href={route("teacher.dashboard")}
+                                active={route().current("teacher.dashboard")}
+                            >
+                                Inicio
+                            </ResponsiveNavLink>
+                        )}
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
