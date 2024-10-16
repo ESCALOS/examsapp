@@ -17,7 +17,8 @@ return new class extends Migration
 
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('student_info_id')->constrained()->onDelete('cascade');
+            $table->string('dni', 12)->nullable();
+            $table->string('name');
             $table->foreignId('academic_year_id')->constrained()->onDelete('cascade');
             $table->enum('grade', GradeEnum::values());
             $table->enum('section', SectionEnum::values());

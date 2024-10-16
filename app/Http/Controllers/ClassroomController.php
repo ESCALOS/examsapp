@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Enums\RoleEnum;
 use App\Http\Requests\StoreTeacherRequest;
 use App\Http\Requests\UpdateTeacherRequest;
+use App\Imports\StudentImport;
 use App\Models\AcademicYear;
 use App\Models\Student;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ClassroomController extends Controller
 {
@@ -27,7 +29,7 @@ class ClassroomController extends Controller
             ->where('academic_year_id', $academicYear->id)
             ->get();
 
-        $students = Student::with('studentInfo')->where('academic_year_id', $academicYear->id)->get();
+        $students = Student::where('academic_year_id', $academicYear->id)->get();
 
         // Devolver la vista de Inertia con los profesores filtrados
         return Inertia::render('Admin/Classrooms', [
@@ -75,5 +77,14 @@ class ClassroomController extends Controller
         Teacher::find($request->id)->delete();
 
         // return back()->with('message', 'Se ha eliminado la sección correctamente');
+    }
+
+    public function importStudents(Request $request)
+    {
+        $file = $request->file('file');
+
+        Excel::import(new StudentImport($request->academicYearId, $request->grade, $request->section), $file);
+
+        return back()->with('message', 'Se han importado correctamente los estudiantes');
     }
 }

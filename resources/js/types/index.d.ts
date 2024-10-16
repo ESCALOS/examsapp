@@ -39,7 +39,8 @@ export interface Teacher {
 
 export interface Student {
     id: number;
-    student_info_id: number;
+    dni: string;
+    name: string;
     academic_year_id: number;
     grade: string;
     section: string;
@@ -55,19 +56,4 @@ export interface Section {
     name: string;
     teacher: string;
     userId: number;
-}
-
-export interface StudentInfo {
-    id: number;
-    dni: string;
-    name: string;
-}
-export interface Student {
-    id: number;
-    studentInfoId: number;
-    academicYearId: number;
-    grade: string;
-    section: string;
-    status: string;
-    studentInfo: StudentInfo;
 }
