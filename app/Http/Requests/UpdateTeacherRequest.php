@@ -2,7 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\GradeEnum;
+use App\Enums\RoleEnum;
+use App\Enums\SectionEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class UpdateTeacherRequest extends FormRequest
 {
@@ -11,7 +16,7 @@ class UpdateTeacherRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::user()->role === RoleEnum::ADMIN;
     }
 
     /**
@@ -22,7 +27,10 @@ class UpdateTeacherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'userId' => ['required', 'integer', 'exists:users,id'],
+            'academicYearId' => ['required', 'integer', 'exists:academic_years,id'],
+            'grade' => ['required', 'string', 'max:255', Rule::enum(GradeEnum::class)],
+            'section' => ['required', 'string', 'max:255', Rule::enum(SectionEnum::class)],
         ];
     }
 }

@@ -25,7 +25,7 @@ const YearSelector: FC<Props> = ({ years, selectedYear, setSelectedYear }) => {
     };
 
     return (
-        <div className="flex items-center justify-center space-x-4">
+        <div className="flex items-center justify-center gap-4 px-4">
             <button
                 onClick={handlePreviousYear}
                 disabled={currentIndex === 0}
@@ -33,7 +33,7 @@ const YearSelector: FC<Props> = ({ years, selectedYear, setSelectedYear }) => {
             >
                 <LucideChevronLeft width={24} height={24} />
             </button>
-            <h2 className="text-2xl font-semibold">
+            <h2 className="text-2xl font-semibold text-center">
                 Año Lectivo: {selectedYear.year}
             </h2>
             <button

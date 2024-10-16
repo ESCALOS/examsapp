@@ -5,7 +5,7 @@ export interface User {
     name: string;
     email: string;
     email_verified_at?: string;
-    role: string;
+    role: "admin" | "teacher";
 }
 
 export type PageProps<
@@ -19,6 +19,7 @@ export type PageProps<
         message?: string;
     };
     academicYears: AcademicYear[];
+    activeTeachers: User[];
 };
 
 export interface AcademicYear {
@@ -50,6 +51,23 @@ export interface Grade {
 }
 
 export interface Section {
+    id: number;
     name: string;
     teacher: string;
+    userId: number;
+}
+
+export interface StudentInfo {
+    id: number;
+    dni: string;
+    name: string;
+}
+export interface Student {
+    id: number;
+    studentInfoId: number;
+    academicYearId: number;
+    grade: string;
+    section: string;
+    status: string;
+    studentInfo: StudentInfo;
 }
