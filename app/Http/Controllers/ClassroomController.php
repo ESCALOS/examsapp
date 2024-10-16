@@ -19,7 +19,7 @@ class ClassroomController extends Controller
     public function index(string $year = '')
     {
         if (empty($year)) {
-            $year = AcademicYear::latest()->first()->year;
+            $year = AcademicYear::orderBy('id', 'desc')->first()->year;
         }
         // Buscar el año académico según el slug del año
         $academicYear = AcademicYear::where('year', $year)->firstOrFail();
@@ -35,7 +35,6 @@ class ClassroomController extends Controller
         return Inertia::render('Admin/Classrooms', [
             'year' => $year,
             'teachers' => $teachers,
-            'academicYears' => AcademicYear::all(),
             'selectedYear' => $academicYear, // Este será el año seleccionado
             'students' => $students,
         ]);
@@ -82,6 +81,11 @@ class ClassroomController extends Controller
     public function importStudents(Request $request)
     {
         $file = $request->file('file');
+
+        Student::where('academic_year_id', $request->academicYearId)
+            ->where('grade', $request->grade)
+            ->where('section', $request->section)
+            ->delete();
 
         Excel::import(new StudentImport($request->academicYearId, $request->grade, $request->section), $file);
 

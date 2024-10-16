@@ -39,7 +39,6 @@ export interface Teacher {
 
 export interface Student {
     id: number;
-    dni: string;
     name: string;
     academic_year_id: number;
     grade: string;
@@ -56,4 +55,11 @@ export interface Section {
     name: string;
     teacher: string;
     userId: number;
+}
+
+export interface Exam {
+    id: number;
+    name: string;
+    academicYearId: number;
+    grade: string;
 }

@@ -1,29 +1,26 @@
 import GradeCollapse from "@/Components/GradeCollapse";
 import Modal from "@/Components/Modal";
+import SectionCard from "@/Components/SectionCard";
 import YearSelector from "@/Components/YearSelector";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
+import ImportStudentForm from "@/Sections/Admin/Classrooms/ImportStudentForm";
 import SectionForm from "@/Sections/Admin/Classrooms/SectionForm";
-import { AcademicYear, Grade, Student, Teacher } from "@/types";
+import { AcademicYear, Grade, Section, Student, Teacher } from "@/types";
 import { transformTeachers } from "@/utils";
-import { Head, router } from "@inertiajs/react";
-import { XIcon } from "lucide-react";
+import { Head, router, usePage } from "@inertiajs/react";
+import { Upload, XIcon } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
 type Props = {
     year: string;
     teachers: Teacher[];
-    academicYears: AcademicYear[];
     selectedYear: AcademicYear;
     students: Student[];
 };
 
-const Classrooms = ({
-    teachers,
-    academicYears,
-    selectedYear,
-    students,
-}: Props) => {
+const Classrooms = ({ teachers, selectedYear, students }: Props) => {
+    const { academicYears } = usePage().props;
     const [currentYear, setCurrentYear] = useState<AcademicYear>(selectedYear);
     const [showModal, setShowModal] = useState(false);
     const [formContent, setFormContent] = useState<ReactNode>(null);
@@ -37,6 +34,126 @@ const Classrooms = ({
     };
 
     const grades = transformTeachers(teachers);
+
+    const handleAddSection = (grade: Grade) => {
+        if (grade.sections.length === 5) {
+            Swal.fire({
+                icon: "warning",
+                title: "Advertencia",
+                text: "No puedes añadir más de 5 secciones a un grado",
+            });
+            return;
+        }
+        setFormContent(
+            <SectionForm
+                grade={grade}
+                academicYear={currentYear}
+                onCloseModal={() => setShowModal(false)}
+                assignedTeachers={teachers}
+            />
+        );
+        setShowModal(true);
+    };
+
+    const handleEditSection = (grade: Grade, section: Section) => {
+        setFormContent(
+            <SectionForm
+                grade={grade}
+                academicYear={currentYear}
+                onCloseModal={() => setShowModal(false)}
+                assignedTeachers={teachers}
+                sectionName={section.name}
+                userId={section.userId}
+                sectionId={section.id}
+                type="edit"
+            />
+        );
+        setShowModal(true);
+    };
+
+    const handleDeleteSection = (id: number) => {
+        Swal.fire({
+            icon: "warning",
+            title: "Advertencia",
+            text: "Esta acción no se puede deshacer",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, eliminar sección",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.visit(route("admin.classrooms.delete-section"), {
+                    method: "delete",
+                    data: { id: id },
+                    onSuccess: () => {
+                        // Si la solicitud fue exitosa
+                        Swal.fire({
+                            icon: "success",
+                            title: "¡Eliminado!",
+                            text: "La sección se ha eliminado correctamente",
+                        });
+                    },
+                    onProgress: () => {
+                        // Si la solicitud está en curso
+                        Swal.fire({
+                            icon: "info",
+                            title: "Eliminando...",
+                            text: "La sección se está eliminando",
+                        });
+                    },
+                    onError: (page) => {
+                        // Si hubo algún error, mostrarlo en SweetAlert
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Advertencia",
+                            text:
+                                page.message ||
+                                "Hubo un problema al eliminar la sección.",
+                        });
+                    },
+                });
+            }
+        });
+    };
+
+    const handleImportStudents = (grade: Grade, section: string) => {
+        setFormContent(
+            <ImportStudentForm
+                academicYearId={currentYear.id}
+                grade={grade.name}
+                section={section}
+                onCloseModal={() => setShowModal(false)}
+            />
+        );
+        setShowModal(true);
+    };
+
+    const handleShowStudents = (grade: Grade, section: Section) => {
+        setFormContent(
+            <ol className="px-4 overflow-auto text-gray-700 list-decimal max-h-96 dark:text-gray-100">
+                <button
+                    className="inline-flex items-center justify-center w-full gap-2 px-4 py-2 mb-4 bg-blue-500 rounded-md"
+                    onClick={() => handleImportStudents(grade, section.name)}
+                >
+                    <Upload size={16} className="mr-2" />
+                    Volver a importar estudiantes
+                </button>
+                <h2></h2>
+                {students
+                    .filter(
+                        (student) =>
+                            student.grade == grade.name &&
+                            student.section == section.name
+                    )
+                    .map((student) => (
+                        <li key={student.id} className="ml-3">
+                            {student.name}
+                        </li>
+                    ))}
+            </ol>
+        );
+        setShowModal(true);
+    };
 
     return (
         <>
@@ -59,10 +176,44 @@ const Classrooms = ({
                                 grade={grade}
                                 setFormContent={setFormContent}
                                 setShowModal={setShowModal}
-                                students={students}
                                 currentYear={currentYear}
                                 teachers={teachers}
-                            />
+                                showAddButton={grade.sections.length < 5}
+                                onAddButtonClick={handleAddSection}
+                            >
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    {grade.sections
+                                        .sort((a, b) =>
+                                            a.name.localeCompare(b.name)
+                                        )
+                                        .map((section) => (
+                                            <SectionCard
+                                                key={section.id}
+                                                grade={grade}
+                                                section={section}
+                                                students={students}
+                                                handleEditSection={() =>
+                                                    handleEditSection(
+                                                        grade,
+                                                        section
+                                                    )
+                                                }
+                                                handleDeleteSection={
+                                                    handleDeleteSection
+                                                }
+                                                handleImportStudents={() =>
+                                                    handleImportStudents(
+                                                        grade,
+                                                        section.name
+                                                    )
+                                                }
+                                                handleShowStudents={
+                                                    handleShowStudents
+                                                }
+                                            />
+                                        ))}
+                                </div>
+                            </GradeCollapse>
                         ))}
                 </div>
             </div>

@@ -17,10 +17,9 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('academic_year_id')->constrained()->onDelete('cascade');
             $table->enum('grade', GradeEnum::values());
-            $table->foreignId('teacher_id')->constrained()->onDelete('cascade');
             $table->timestamps();
 
-            $table->unique(['name', 'academic_year_id']);
+            $table->unique(['name', 'grade', 'academic_year_id']);
         });
     }
 
