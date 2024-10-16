@@ -1,6 +1,5 @@
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
-import PrimaryButton from "@/Components/PrimaryButton";
 import { AcademicYear, Grade, Teacher } from "@/types";
 import { availableSections, filterUnassignedTeachers } from "@/utils";
 import { Select } from "@headlessui/react";
@@ -16,7 +15,6 @@ type Props = {
     assignedTeachers: Teacher[];
     sectionName?: string;
     userId?: number;
-    type?: "add" | "edit";
 };
 
 function SectionForm({
@@ -27,7 +25,6 @@ function SectionForm({
     userId,
     onCloseModal,
     assignedTeachers,
-    type = "add",
 }: Props) {
     const { activeTeachers } = usePage().props;
     const sections = availableSections(grade.sections, sectionName);
@@ -42,7 +39,6 @@ function SectionForm({
             title: "Advertencia",
             text: "No hay profesores disponibles para este grado",
         });
-        onCloseModal();
         return;
     }
 
@@ -67,7 +63,7 @@ function SectionForm({
         e.preventDefault();
         // Enviar la solicitud POST a la ruta 'classrooms.add-section'
         const uri =
-            type === "add"
+            sectionId === undefined
                 ? route("admin.classrooms.add-section")
                 : route("admin.classrooms.update-section");
         post(uri, {
@@ -76,9 +72,10 @@ function SectionForm({
                 // Si la solicitud fue exitosa
                 Swal.fire({
                     icon: "success",
-                    title: type === "add" ? "¡Creado!" : "¡Actualizado!",
+                    title:
+                        sectionId === undefined ? "¡Creado!" : "¡Actualizado!",
                     text:
-                        type === "add"
+                        sectionId === undefined
                             ? "Se ha añadido la sección correctamente"
                             : "Se ha actualizado la sección correctamente",
                 });
@@ -91,7 +88,7 @@ function SectionForm({
                     icon: "warning",
                     title: "Advertencia",
                     text:
-                        type === "add"
+                        sectionId === undefined
                             ? "Hubo un problema al crear la sección."
                             : "Hubo un problema al actualizar la sección.",
                 });
@@ -139,9 +136,15 @@ function SectionForm({
                 <InputError message={errors.section} className="mt-2" />
             </div>
             <div className="flex items-center justify-end mt-4">
-                <PrimaryButton className="ms-4" disabled={processing}>
-                    {type === "add" ? "Añadir sección" : "Actualizar sección"}
-                </PrimaryButton>
+                <button
+                    type="submit"
+                    className="px-4 py-2 text-sm text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600"
+                    disabled={processing}
+                >
+                    {sectionId === undefined
+                        ? "Añadir sección"
+                        : "Actualizar sección"}
+                </button>
             </div>
         </form>
     );

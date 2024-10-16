@@ -1,4 +1,13 @@
-import { Grade, Section, Teacher, User } from "./types";
+import {
+    Exam,
+    ExamsByGrade,
+    Grade,
+    Question,
+    QuestionModel,
+    Section,
+    Teacher,
+    User,
+} from "./types";
 
 export function availableSections(
     sections: Section[],
@@ -71,4 +80,65 @@ export function filterUnassignedTeachers(
             // Sino, verificamos que no esté asignado
             !assignedIds.includes(teacher.id)
     );
+}
+
+export function groupExamsByGrade(exams: Exam[]): ExamsByGrade[] {
+    const result: ExamsByGrade[] = [];
+
+    // Inicializa el array con los grados del 1 al 6
+    for (let grade = 1; grade <= 6; grade++) {
+        result.push({ name: grade.toString(), exams: [] });
+    }
+
+    // Agrupar los exámenes por grado
+    exams.forEach((exam) => {
+        const gradeIndex = result.findIndex(
+            (g) => g.name === exam.grade.toString()
+        );
+        if (gradeIndex !== -1) {
+            result[gradeIndex].exams.push(exam);
+        }
+    });
+
+    return result;
+}
+
+export function createQuestions(amount: number): Question[] {
+    const questions: Question[] = [];
+
+    for (let i = 1; i <= amount; i++) {
+        questions.push({
+            id: i,
+            correctAnswer: null, // Puedes inicializar con null o algún valor por defecto
+        });
+    }
+
+    return questions;
+}
+
+export function validateQuestions(
+    validAnswers: string[],
+    questions: Question[]
+): { idError: number; areErrors: boolean } {
+    let areErrors = false;
+    let idError = 0;
+    for (const question of questions) {
+        const { id, correctAnswer } = question;
+
+        // Verificar si la respuesta es null o no es una de las válidas
+        areErrors =
+            correctAnswer === null || !validAnswers.includes(correctAnswer);
+        if (areErrors) {
+            idError = id;
+            break;
+        }
+    }
+    return { idError, areErrors };
+}
+
+export function transformQuestions(models: QuestionModel[]): Question[] {
+    return models.map((model) => ({
+        id: model.question_number, // Usamos questionNumber como id
+        correctAnswer: model.correct_answer || null, // Asignamos el valor de answer o null si está vacío
+    }));
 }

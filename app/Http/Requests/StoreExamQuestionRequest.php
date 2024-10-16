@@ -2,7 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\AlternativeEnum;
+use App\Enums\RoleEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class StoreExamQuestionRequest extends FormRequest
 {
@@ -11,7 +15,7 @@ class StoreExamQuestionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::user()->role === RoleEnum::ADMIN;
     }
 
     /**
@@ -22,7 +26,9 @@ class StoreExamQuestionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'exam_id' => ['required', 'exists:exams,id'],
+            'question_number' => ['required', 'integer', 'max:100'],
+            'correct_answer' => ['required', Rule::enum(AlternativeEnum::class)],
         ];
     }
 }

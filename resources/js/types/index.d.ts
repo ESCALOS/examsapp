@@ -57,9 +57,27 @@ export interface Section {
     userId: number;
 }
 
+export interface QuestionModel {
+    id: number;
+    exam_id: number;
+    question_number: number;
+    correct_answer: string;
+}
+
 export interface Exam {
     id: number;
     name: string;
     academicYearId: number;
     grade: string;
+    questions?: QuestionModel[];
 }
+
+export interface ExamsByGrade {
+    name: string;
+    exams: Exam[];
+}
+
+export type Question = {
+    id: number;
+    correctAnswer: string | null;
+};

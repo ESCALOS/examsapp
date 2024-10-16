@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('exam_id')->constrained()->onDelete('cascade');
 
-            // El número de la pregunta, restringido a 2 caracteres como máximo
-            $table->string('question_number', 2);
+            $table->integer('question_number');
 
             // Restringir la respuesta correcta a solo una letra (A, B, C, D, E)
             $table->enum('correct_answer', ['A', 'B', 'C', 'D', 'E']);

@@ -20,7 +20,7 @@ function Collapse({
         onAddButtonClick();
     };
     return (
-        <div className="mb-4 overflow-hidden border border-gray-200 rounded-lg dark:border-gray-700">
+        <div className="mb-4 overflow-hidden border border-gray-200 rounded-lg select-none dark:border-gray-700">
             <div
                 className="flex items-center justify-between p-4 bg-white cursor-pointer dark:bg-gray-800"
                 onClick={() => setIsOpen(!isOpen)}

@@ -6,7 +6,7 @@ import Authenticated from "@/Layouts/AuthenticatedLayout";
 import ImportStudentForm from "@/Sections/Admin/Classrooms/ImportStudentForm";
 import SectionForm from "@/Sections/Admin/Classrooms/SectionForm";
 import { AcademicYear, Grade, Section, Student, Teacher } from "@/types";
-import { transformTeachers } from "@/utils";
+import { filterUnassignedTeachers, transformTeachers } from "@/utils";
 import { Head, router, usePage } from "@inertiajs/react";
 import { Upload, XIcon } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
@@ -20,7 +20,7 @@ type Props = {
 };
 
 const Classrooms = ({ teachers, selectedYear, students }: Props) => {
-    const { academicYears } = usePage().props;
+    const { academicYears, activeTeachers } = usePage().props;
     const [currentYear, setCurrentYear] = useState<AcademicYear>(selectedYear);
     const [showModal, setShowModal] = useState(false);
     const [formContent, setFormContent] = useState<ReactNode>(null);
@@ -34,6 +34,10 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
     };
 
     const grades = transformTeachers(teachers);
+    const unassignedTeachers = filterUnassignedTeachers(
+        activeTeachers,
+        teachers
+    );
 
     const handleAddSection = (grade: Grade) => {
         if (grade.sections.length === 5) {
@@ -65,7 +69,6 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
                 sectionName={section.name}
                 userId={section.userId}
                 sectionId={section.id}
-                type="edit"
             />
         );
         setShowModal(true);
@@ -132,7 +135,7 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
         setFormContent(
             <ol className="px-4 overflow-auto text-gray-700 list-decimal max-h-96 dark:text-gray-100">
                 <button
-                    className="inline-flex items-center justify-center w-full gap-2 px-4 py-2 mb-4 bg-blue-500 rounded-md"
+                    className="inline-flex items-center justify-center w-full gap-2 px-4 py-2 mb-4 text-gray-100 bg-blue-500 rounded-md"
                     onClick={() => handleImportStudents(grade, section.name)}
                 >
                     <Upload size={16} className="mr-2" />
@@ -174,11 +177,10 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
                             <GradeCollapse
                                 key={grade.name}
                                 grade={grade}
-                                setFormContent={setFormContent}
-                                setShowModal={setShowModal}
-                                currentYear={currentYear}
-                                teachers={teachers}
-                                showAddButton={grade.sections.length < 5}
+                                showAddButton={
+                                    grade.sections.length < 5 &&
+                                    unassignedTeachers.length !== 0
+                                }
                                 onAddButtonClick={handleAddSection}
                             >
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

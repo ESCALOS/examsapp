@@ -2,7 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\AlternativeEnum;
+use App\Enums\GradeEnum;
+use App\Enums\RoleEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class UpdateExamRequest extends FormRequest
 {
@@ -11,18 +16,18 @@ class UpdateExamRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::user()->role === RoleEnum::ADMIN;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string', 'max:255'],
+            'academicYearId' => ['required', 'integer', 'exists:academic_years,id'],
+            'grade' => ['required', 'string', 'max:255', Rule::enum(GradeEnum::class)],
+            'questions' => ['required', 'array', 'min:2'],
+            'questions.*.id' => ['required', 'integer'],
+            'questions.*.correctAnswer' => ['required', Rule::enum(AlternativeEnum::class)],
         ];
     }
 }

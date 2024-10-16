@@ -1,5 +1,4 @@
 import InputLabel from "@/Components/InputLabel";
-import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import { useForm } from "@inertiajs/react";
 import Swal from "sweetalert2";
@@ -74,9 +73,13 @@ function ImportStudentForm({
                 onChange={handleFileChange}
             />
             <div className="flex items-center justify-end mt-4">
-                <PrimaryButton className="ms-4" disabled={processing}>
+                <button
+                    type="submit"
+                    className="px-4 py-2 text-sm text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600"
+                    disabled={processing}
+                >
                     Importar estudiantes
-                </PrimaryButton>
+                </button>
             </div>
         </form>
     );

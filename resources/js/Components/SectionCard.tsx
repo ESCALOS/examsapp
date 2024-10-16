@@ -22,7 +22,7 @@ export default function SectionCard({
 }: Props) {
     return (
         <div className="relative p-4 bg-white rounded-lg shadow dark:bg-gray-800">
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-4 right-4">
                 <div className="flex items-center gap-2">
                     <button onClick={() => handleEditSection(section)}>
                         <PencilIcon

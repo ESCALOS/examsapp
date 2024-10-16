@@ -15,5 +15,8 @@ Route::delete('/aulas/eliminar-seccion', [ClassroomController::class, 'deleteSec
 Route::post('/aulas/importar-estudiantes', [ClassroomController::class, 'importStudents'])->name('classrooms.import-students');
 
 Route::get('/examenes/{year?}', [ExamController::class, 'index'])->name('exams');
+Route::post('/exams/agregar-examen', [ExamController::class, 'store'])->name('exam.add-exam');
+Route::post('/exams/actualizar-examen', [ExamController::class, 'update'])->name('exam.update-exam');
+Route::delete('/exams/eliminar-examen', [ExamController::class, 'destroy'])->name('exam.delete-exam');
 
 Route::post('academic-year', [AcademicYearController::class, 'store'])->name('academic-year.store');

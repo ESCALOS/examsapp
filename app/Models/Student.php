@@ -32,4 +32,9 @@ class Student extends Model
     {
         return $this->belongsTo(AcademicYear::class);
     }
+
+    public function answer()
+    {
+        return $this->hasMany(StudentExamAnswer::class);
+    }
 }

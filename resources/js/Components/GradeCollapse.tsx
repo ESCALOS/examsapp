@@ -1,21 +1,10 @@
-import React, { Children, ReactNode } from "react";
-import { Eye, PencilIcon, Trash2Icon, Upload } from "lucide-react";
-import { AcademicYear, Grade, Section, Student, Teacher } from "@/types";
+import React, { ReactNode } from "react";
 import Collapse from "./Collapse";
-import Swal from "sweetalert2";
-import SectionForm from "@/Sections/Admin/Classrooms/SectionForm";
-import { router, useForm } from "@inertiajs/react";
-import ImportStudentForm from "@/Sections/Admin/Classrooms/ImportStudentForm";
-import SectionCard from "./SectionCard";
 
 interface GradeCollapseProps {
     children: ReactNode;
-    grade: Grade;
-    currentYear: AcademicYear;
-    teachers: Teacher[];
-    setFormContent: React.Dispatch<React.SetStateAction<ReactNode>>;
-    setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
-    onAddButtonClick: (grade: Grade) => void;
+    grade: any;
+    onAddButtonClick: (grade: any) => void;
     showAddButton: boolean;
 }
 

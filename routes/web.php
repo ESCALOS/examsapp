@@ -1,8 +1,5 @@
 <?php
 
-use App\Models\AcademicYear;
-use App\Models\Student;
-use App\Models\Teacher;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
