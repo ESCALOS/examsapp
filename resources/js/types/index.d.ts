@@ -32,6 +32,8 @@ export interface Teacher {
     academic_year_id: number;
     grade: string;
     section: string;
+    user: User;
+    academicYear: AcademicYear;
 }
 
 export interface Student {
@@ -41,4 +43,13 @@ export interface Student {
     grade: string;
     section: string;
     status: string;
+}
+export interface Grade {
+    name: string;
+    sections: Section[];
+}
+
+export interface Section {
+    name: string;
+    teacher: string;
 }

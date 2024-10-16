@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Enums\RoleEnum;
 use App\Http\Requests\UpdateAcademicYearRequest;
 use App\Models\AcademicYear;
+use App\Models\Teacher;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class AcademicYearController extends Controller
 {
@@ -48,6 +50,15 @@ class AcademicYearController extends Controller
         ]);
 
         return back()->with('message', 'Año académico creado exitosamente');
+    }
+
+    public function showClassroomsByYear(string $year)
+    {
+        $academicYear = AcademicYear::where('year', $year)->first();
+
+        return Inertia::render('Admin/Classrooms', [
+            'teachers' => Teacher::where('academic_year_id', $academicYear->id)->get(),
+        ]);
     }
 
     /**

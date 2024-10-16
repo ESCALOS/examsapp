@@ -34,9 +34,6 @@ export default function Home() {
                         </svg>
                         Acceder a Intranet
                     </Link>
-                    <Link href={route("logout")} method="post" as="button">
-                        Cerrar Sesión
-                    </Link>
                 </main>
                 <footer className="mt-16 text-sm text-primary-500">
                     <p>&copy; 2024 I.E 22358. Todos los derechos reservados.</p>
