@@ -91,8 +91,8 @@ export default function ExamForm({
         }
         const uri =
             examId === undefined
-                ? route("admin.exam.add-exam")
-                : route("admin.exam.update-exam");
+                ? route("admin.exams.add-exam")
+                : route("admin.exams.update-exam");
         post(uri, {
             preserveScroll: true,
             onProgress: () => {

@@ -41,17 +41,19 @@ export default function Authenticated({
                                             Inicio
                                         </NavLink>
                                         <NavLink
-                                            href={route("admin.classrooms")}
+                                            href={route(
+                                                "admin.classrooms.index"
+                                            )}
                                             active={route().current(
-                                                "admin.classrooms"
+                                                "admin.classrooms.index"
                                             )}
                                         >
                                             Aulas
                                         </NavLink>
                                         <NavLink
-                                            href={route("admin.exams")}
+                                            href={route("admin.exams.index")}
                                             active={route().current(
-                                                "admin.exams"
+                                                "admin.exams.index"
                                             )}
                                         >
                                             Exámenes
@@ -169,14 +171,18 @@ export default function Authenticated({
                                     Inicio
                                 </ResponsiveNavLink>
                                 <ResponsiveNavLink
-                                    href={route("admin.classrooms")}
-                                    active={route().current("admin.classrooms")}
+                                    href={route("admin.classrooms.index")}
+                                    active={route().current(
+                                        "admin.classrooms.index"
+                                    )}
                                 >
                                     Aulas
                                 </ResponsiveNavLink>
                                 <ResponsiveNavLink
-                                    href={route("admin.exams")}
-                                    active={route().current("admin.exams")}
+                                    href={route("admin.exams.index")}
+                                    active={route().current(
+                                        "admin.exams.index"
+                                    )}
                                 >
                                     Exámenes
                                 </ResponsiveNavLink>

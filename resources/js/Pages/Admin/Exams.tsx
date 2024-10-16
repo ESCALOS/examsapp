@@ -73,7 +73,7 @@ const Exams = ({ selectedYear, exams }: Props) => {
             confirmButtonText: "Sí, eliminar sección",
         }).then((result) => {
             if (result.isConfirmed) {
-                router.visit(route("admin.exam.delete-exam"), {
+                router.visit(route("admin.exams.delete-exam"), {
                     method: "delete",
                     data: { id: id },
                     onSuccess: () => {
