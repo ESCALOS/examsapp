@@ -58,6 +58,14 @@ export default function Authenticated({
                                         >
                                             Exámenes
                                         </NavLink>
+                                        <NavLink
+                                            href={route("admin.teachers.index")}
+                                            active={route().current(
+                                                "admin.teachers.index"
+                                            )}
+                                        >
+                                            Docentes
+                                        </NavLink>
                                     </>
                                 ) : (
                                     <NavLink
@@ -185,6 +193,14 @@ export default function Authenticated({
                                     )}
                                 >
                                     Exámenes
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink
+                                    href={route("admin.teachers.index")}
+                                    active={route().current(
+                                        "admin.teacher.index"
+                                    )}
+                                >
+                                    Docentes
                                 </ResponsiveNavLink>
                             </>
                         ) : (

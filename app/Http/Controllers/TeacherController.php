@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreTeacherRequest;
-use App\Http\Requests\UpdateTeacherRequest;
+use App\Enums\RoleEnum;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\Teacher;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class TeacherController extends Controller
 {
@@ -13,7 +19,9 @@ class TeacherController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Admin/Teacher', [
+            'teachers' => User::where('role', RoleEnum::TEACHER)->orderBy('name')->get(),
+        ]);
     }
 
     /**
@@ -27,9 +35,16 @@ class TeacherController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTeacherRequest $request)
+    public function store(StoreUserRequest $request)
     {
-        //
+        $request->validated();
+
+        User::create([
+            'dni' => $request->dni,
+            'name' => $request->name,
+            'password' => Hash::make($request->dni),
+            'remember_token' => Str::random(10),
+        ]);
     }
 
     /**
@@ -51,16 +66,25 @@ class TeacherController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTeacherRequest $request, Teacher $teacher)
+    public function update(UpdateUserRequest $request)
     {
-        //
+        $request->validated();
+
+        $user = User::find($request->id);
+
+        $user->update([
+            'dni' => $request->dni,
+            'name' => $request->name,
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Teacher $teacher)
+    public function destroy(Request $request)
     {
-        //
+        User::find($request->id)->update([
+            'is_active' => ! $request->is_active || false,
+        ]);
     }
 }

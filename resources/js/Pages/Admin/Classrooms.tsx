@@ -159,7 +159,7 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
     };
 
     return (
-        <>
+        <Authenticated>
             <Head title="Aulas" />
             <div className="py-12">
                 <h1 className="px-4 mb-6 text-2xl font-bold text-center text-blue-800 sm:text-3xl sm:mb-8 dark:text-blue-300">
@@ -233,10 +233,8 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
                     {formContent}
                 </div>
             </Modal>
-        </>
+        </Authenticated>
     );
 };
-
-Classrooms.layout = (page: ReactNode) => <Authenticated children={page} />;
 
 export default Classrooms;

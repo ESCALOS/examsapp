@@ -1,12 +1,11 @@
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import WithoutAcademicYears from "@/Sections/WithoutAcademicYears";
 import { Head, usePage } from "@inertiajs/react";
-import { ReactNode } from "react";
 
 const Dashboard = () => {
     const { academicYears } = usePage().props;
     return (
-        <>
+        <Authenticated>
             <Head title="Inicio" />
 
             <div className="py-12">
@@ -29,10 +28,8 @@ const Dashboard = () => {
                     )}
                 </div>
             </div>
-        </>
+        </Authenticated>
     );
 };
-
-Dashboard.layout = (page: ReactNode) => <Authenticated children={page} />;
 
 export default Dashboard;

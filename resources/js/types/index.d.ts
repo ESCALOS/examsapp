@@ -2,10 +2,12 @@ import { Config } from "ziggy-js";
 
 export interface User {
     id: number;
+    dni: string;
     name: string;
     email: string;
     email_verified_at?: string;
     role: "admin" | "teacher";
+    is_active: boolean;
 }
 
 export type PageProps<
