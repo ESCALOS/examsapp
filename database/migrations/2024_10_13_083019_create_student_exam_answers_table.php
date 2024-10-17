@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
             $table->foreignId('exam_id')->constrained()->onDelete('cascade');
             $table->integer('question_number');
-            $table->enum('answer', AlternativeEnum::values());
+            $table->enum('answer', AlternativeEnum::values())->nullable();
             $table->timestamps();
 
             // Índice único compuesto: el 'question_number' debe ser único dentro del mismo 'exam_id'

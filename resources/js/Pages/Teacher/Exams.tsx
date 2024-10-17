@@ -1,6 +1,9 @@
 import ExamReviewCard from "@/Components/ExamViewCard";
+import Modal from "@/Components/Modal";
 import YearSelector from "@/Components/YearSelector";
+import { useModal } from "@/hooks/useModal";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import ExamForm from "@/Sections/Teacher/ExamForm";
 import { AcademicYear, Exam, Student } from "@/types";
 import { Head, router, usePage } from "@inertiajs/react";
 import { useState } from "react";
@@ -15,12 +18,11 @@ type Props = {
 export default function Exams({ selectedYear, exams, students }: Props) {
     const { academicYears, auth } = usePage().props;
     const [currentYear, setCurrentYear] = useState<AcademicYear>(selectedYear);
+    const { showModal, formContent, openModal, closeModal } = useModal();
 
     const currentTeacherData = auth.user.teachers?.find(
         (teacher) => teacher.academic_year_id === currentYear.id
     );
-    console.log("exams", exams);
-    console.log("students", students);
 
     const handleYearChange = (newYear: AcademicYear) => {
         setCurrentYear(newYear);
@@ -29,6 +31,25 @@ export default function Exams({ selectedYear, exams, students }: Props) {
             preserveScroll: true,
             only: ["exams", "selectedYear"],
         });
+    };
+
+    const handleSaveEvaluation = (
+        studentId: number,
+        answers: (string | null)[]
+    ) => {
+        console.log(studentId, answers);
+    };
+
+    const handleEvaluate = (exam: Exam) => {
+        openModal(
+            <ExamForm
+                exam={exam}
+                students={students}
+                onClose={closeModal}
+                questionCount={exam.questions.length}
+                onSaveEvaluation={handleSaveEvaluation}
+            />
+        );
     };
     return (
         <AuthenticatedLayout>
@@ -68,7 +89,7 @@ export default function Exams({ selectedYear, exams, students }: Props) {
                                         status={state}
                                         totalStudents={students.length}
                                         evaluatedStudents={exam.answers.length}
-                                        onReview={() => console.log("review")}
+                                        onEvaluate={() => handleEvaluate(exam)}
                                         onViewRankings={() =>
                                             console.log("view rankings")
                                         }
@@ -87,6 +108,9 @@ export default function Exams({ selectedYear, exams, students }: Props) {
                     )}
                 </div>
             </div>
+            <Modal show={showModal} onClose={closeModal} closeable={false}>
+                {formContent}
+            </Modal>
         </AuthenticatedLayout>
     );
 }

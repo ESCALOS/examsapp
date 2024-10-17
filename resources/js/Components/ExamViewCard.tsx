@@ -6,7 +6,7 @@ interface ExamReviewCardProps {
     status: "complete" | "evaluating";
     totalStudents: number;
     evaluatedStudents: number;
-    onReview: () => void;
+    onEvaluate: () => void;
     onViewRankings: () => void;
 }
 
@@ -15,7 +15,7 @@ const ExamReviewCard: React.FC<ExamReviewCardProps> = ({
     status,
     totalStudents,
     evaluatedStudents,
-    onReview,
+    onEvaluate,
     onViewRankings,
 }) => {
     const progress = (evaluatedStudents / totalStudents) * 100;
@@ -70,7 +70,7 @@ const ExamReviewCard: React.FC<ExamReviewCardProps> = ({
 
             <div className="flex space-x-2">
                 <button
-                    onClick={onReview}
+                    onClick={onEvaluate}
                     className="flex items-center justify-center flex-1 px-4 py-2 text-sm text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600"
                 >
                     <SquareCheckBig size={16} className="mr-2" />

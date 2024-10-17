@@ -142,3 +142,24 @@ export function transformQuestions(models: QuestionModel[]): Question[] {
         correctAnswer: model.correct_answer || null, // Asignamos el valor de answer o null si está vacío
     }));
 }
+
+export const calculateAnswersSummary = (
+    selectedAnswers: string[],
+    questions: QuestionModel[]
+) => {
+    let correct = 0;
+    let incorrect = 0;
+    let notAnswered = 0;
+
+    selectedAnswers.forEach((answer, index) => {
+        if (answer === "") {
+            notAnswered++;
+        } else if (answer === questions[index].correct_answer) {
+            correct++;
+        } else {
+            incorrect++;
+        }
+    });
+
+    return { correct, incorrect, notAnswered };
+};

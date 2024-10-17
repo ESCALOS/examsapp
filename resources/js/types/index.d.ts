@@ -72,7 +72,7 @@ export interface Answer {
     student_id: number;
     exam_id: number;
     question_number: number;
-    answer: string;
+    answer: string | null;
     student: Student;
 }
 
@@ -81,7 +81,7 @@ export interface Exam {
     name: string;
     academicYearId: number;
     grade: string;
-    questions?: QuestionModel[];
+    questions: QuestionModel[];
     answers: Answer[];
 }
 
