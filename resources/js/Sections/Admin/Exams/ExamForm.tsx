@@ -134,6 +134,9 @@ export default function ExamForm({
     };
     return (
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+            <h2 className="mb-4 text-xl font-semibold text-center text-gray-700 sm:text-2xl dark:text-gray-100">
+                {examId === undefined ? "Nuevo Examen" : "Editar Examen"}
+            </h2>
             {isDirty && (
                 <div className="text-amber-500">* Hay cambios sin guardar</div>
             )}

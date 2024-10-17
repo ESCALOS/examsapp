@@ -20,6 +20,10 @@ export default function SectionCard({
     handleImportStudents,
     handleShowStudents,
 }: Props) {
+    const studentsCount = students.filter(
+        (student) =>
+            student.section == section.name && student.grade == grade.name
+    ).length;
     return (
         <div className="relative p-4 bg-white rounded-lg shadow dark:bg-gray-800">
             <div className="absolute top-4 right-4">
@@ -44,7 +48,7 @@ export default function SectionCard({
             </div>
             <h4 className="mb-2 font-semibold">Sección {section.name}</h4>
             <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
-                Docente: {section.teacher}
+                {section.teacher} {studentsCount > 0 && `(${studentsCount})`}
             </p>
             <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                 {students.some(

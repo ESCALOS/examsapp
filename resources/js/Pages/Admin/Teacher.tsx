@@ -1,4 +1,5 @@
 import Modal from "@/Components/Modal";
+import { useModal } from "@/hooks/useModal";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import TeacherForm from "@/Sections/Admin/Teachers/TeacherForm";
 import { User } from "@/types";
@@ -12,22 +13,14 @@ type Props = {
 };
 
 function Teacher({ teachers }: Props) {
-    const [showModal, setShowModal] = useState(false);
-    const [formContent, setFormContent] = useState<ReactNode>(null);
+    const { showModal, openModal, closeModal, formContent } = useModal();
 
     const handleAddTeacher = () => {
-        setFormContent(<TeacherForm closeModal={() => setShowModal(false)} />);
-        setShowModal(true);
+        openModal(<TeacherForm closeModal={closeModal} />);
     };
 
     const handleEditTeacher = (teacher: User) => {
-        setFormContent(
-            <TeacherForm
-                closeModal={() => setShowModal(false)}
-                teacher={teacher}
-            />
-        );
-        setShowModal(true);
+        openModal(<TeacherForm closeModal={closeModal} teacher={teacher} />);
     };
 
     const handleToggleTeacherStatus = (id: number, isActive: boolean) => {
@@ -148,15 +141,11 @@ function Teacher({ teachers }: Props) {
                     </div>
                 </div>
             </div>
-            <Modal
-                show={showModal}
-                onClose={() => setShowModal(false)}
-                closeable={false}
-            >
-                <div className="relative px-4 py-8 sm:px-8">
+            <Modal show={showModal} onClose={closeModal} closeable={false}>
+                <div className="relative px-4 py-4 sm:px-6">
                     <XIcon
                         className="absolute text-gray-500 cursor-pointer top-4 right-4 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                        onClick={() => setShowModal(false)}
+                        onClick={closeModal}
                     />
                     {formContent}
                 </div>

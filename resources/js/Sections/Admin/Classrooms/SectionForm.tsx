@@ -100,6 +100,9 @@ function SectionForm({
     };
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
+            <h2 className="mb-4 text-xl font-semibold text-center text-gray-700 sm:text-2xl dark:text-gray-100">
+                {sectionId === undefined ? "Nueva Sección" : "Editar Sección"}
+            </h2>
             <div>
                 <InputLabel htmlFor="teacher" value="Profesor" />
                 <Select

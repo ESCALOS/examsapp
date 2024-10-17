@@ -1,6 +1,7 @@
 import GradeCollapse from "@/Components/GradeCollapse";
 import Modal from "@/Components/Modal";
 import YearSelector from "@/Components/YearSelector";
+import { useModal } from "@/hooks/useModal";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import ExamForm from "@/Sections/Admin/Exams/ExamForm";
 import { AcademicYear, Exam, ExamsByGrade, QuestionModel } from "@/types";
@@ -19,8 +20,7 @@ type Props = {
 const Exams = ({ selectedYear, exams }: Props) => {
     const { academicYears } = usePage().props;
     const [currentYear, setCurrentYear] = useState<AcademicYear>(selectedYear);
-    const [showModal, setShowModal] = useState(false);
-    const [formContent, setFormContent] = useState<ReactNode>(null);
+    const { showModal, openModal, closeModal, formContent } = useModal();
 
     const grades = groupExamsByGrade(exams);
     const handleYearChange = (newYear: AcademicYear) => {
@@ -30,15 +30,14 @@ const Exams = ({ selectedYear, exams }: Props) => {
     };
 
     const handleAddExam = (grade: ExamsByGrade, questionsNumber: number) => {
-        setFormContent(
+        openModal(
             <ExamForm
                 academicYear={currentYear}
                 grade={grade.name}
                 questionsNumber={questionsNumber}
-                closeModal={() => setShowModal(false)}
+                closeModal={closeModal}
             />
         );
-        setShowModal(true);
     };
 
     const handleEditExam = (
@@ -48,18 +47,17 @@ const Exams = ({ selectedYear, exams }: Props) => {
         name: string,
         questions: QuestionModel[]
     ) => {
-        setFormContent(
+        openModal(
             <ExamForm
                 academicYear={currentYear}
                 grade={grade.name}
                 questionsNumber={questionsNumber}
-                closeModal={() => setShowModal(false)}
+                closeModal={closeModal}
                 examId={examId}
                 questions={questions}
                 name={name}
             />
         );
-        setShowModal(true);
     };
 
     const handleDeleteExam = (id: number) => {
@@ -220,15 +218,11 @@ const Exams = ({ selectedYear, exams }: Props) => {
                     ))}
                 </div>
             </div>
-            <Modal
-                show={showModal}
-                onClose={() => setShowModal(false)}
-                closeable={false}
-            >
-                <div className="relative px-4 py-8 sm:px-8">
+            <Modal show={showModal} onClose={closeModal} closeable={false}>
+                <div className="relative px-4 py-4 sm:px-6">
                     <XIcon
                         className="absolute text-gray-500 cursor-pointer top-4 right-4 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                        onClick={() => setShowModal(false)}
+                        onClick={closeModal}
                     />
                     {formContent}
                 </div>

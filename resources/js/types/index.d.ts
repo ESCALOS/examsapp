@@ -82,7 +82,7 @@ export interface Exam {
     academicYearId: number;
     grade: string;
     questions?: QuestionModel[];
-    answers?: Answer[];
+    answers: Answer[];
 }
 
 export interface ExamsByGrade {

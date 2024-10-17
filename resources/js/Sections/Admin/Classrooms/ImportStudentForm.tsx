@@ -64,6 +64,9 @@ function ImportStudentForm({
     };
     return (
         <form onSubmit={handleSubmit}>
+            <h2 className="mb-4 text-xl font-semibold text-center text-gray-700 sm:text-2xl dark:text-gray-100">
+                Importar estudiantes
+            </h2>
             <InputLabel
                 htmlFor="file"
                 value="Ingrese el excel con los estudiantes"

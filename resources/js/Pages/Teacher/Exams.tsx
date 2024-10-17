@@ -1,6 +1,7 @@
+import ExamReviewCard from "@/Components/ExamViewCard";
 import YearSelector from "@/Components/YearSelector";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { AcademicYear, Exam } from "@/types";
+import { AcademicYear, Exam, Student } from "@/types";
 import { Head, router, usePage } from "@inertiajs/react";
 import { useState } from "react";
 
@@ -8,9 +9,10 @@ type Props = {
     year: string;
     selectedYear: AcademicYear;
     exams: Exam[];
+    students: Student[];
 };
 
-export default function Dashboard({ selectedYear, exams }: Props) {
+export default function Exams({ selectedYear, exams, students }: Props) {
     const { academicYears, auth } = usePage().props;
     const [currentYear, setCurrentYear] = useState<AcademicYear>(selectedYear);
 
@@ -18,6 +20,7 @@ export default function Dashboard({ selectedYear, exams }: Props) {
         (teacher) => teacher.academic_year_id === currentYear.id
     );
     console.log("exams", exams);
+    console.log("students", students);
 
     const handleYearChange = (newYear: AcademicYear) => {
         setCurrentYear(newYear);
@@ -35,7 +38,7 @@ export default function Dashboard({ selectedYear, exams }: Props) {
             <div className="py-12">
                 <div className="px-4 mb-6 sm:mb-8 ">
                     <h1 className="text-2xl font-bold text-center text-blue-800 sm:text-3xl dark:text-blue-300">
-                        Gestión de Examenes -
+                        Gestión de Examenes
                     </h1>
                     <h2 className="text-lg font-medium text-center text-gray-600 dark:text-gray-400">
                         Aula:{" "}
@@ -53,19 +56,25 @@ export default function Dashboard({ selectedYear, exams }: Props) {
                 <div className="px-4 mx-auto mt-6 sm:mt-8 max-w-7xl">
                     {exams.length > 0 ? (
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {exams.map((exam) => (
-                                <div
-                                    key={exam.id}
-                                    className="p-4 bg-white rounded-lg shadow dark:bg-gray-800"
-                                >
-                                    <h3 className="mb-2 font-semibold">
-                                        {exam.name}
-                                    </h3>
-                                    <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-                                        Docente: {exam.grade}
-                                    </p>
-                                </div>
-                            ))}
+                            {exams.map((exam) => {
+                                const state =
+                                    exam.answers.length === students.length
+                                        ? "complete"
+                                        : "evaluating";
+                                return (
+                                    <ExamReviewCard
+                                        key={exam.id}
+                                        examName={exam.name}
+                                        status={state}
+                                        totalStudents={students.length}
+                                        evaluatedStudents={exam.answers.length}
+                                        onReview={() => console.log("review")}
+                                        onViewRankings={() =>
+                                            console.log("view rankings")
+                                        }
+                                    />
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className="p-4 bg-gray-50 dark:bg-gray-700">

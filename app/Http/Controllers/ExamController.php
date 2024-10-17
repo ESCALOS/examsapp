@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateExamRequest;
 use App\Models\AcademicYear;
 use App\Models\Exam;
 use App\Models\ExamQuestion;
+use App\Models\Student;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,10 +32,12 @@ class ExamController extends Controller
         $exams = Exam::with('questions')->where('academic_year_id', $academicYear->id);
         $user = Auth::user();
         $teacherId = Auth::user()->role === RoleEnum::TEACHER ? $user->id : 0;
+        $students = [];
         if ($teacherId > 0) {
             $teacher = Teacher::where('user_id', $user->id)->where('academic_year_id', $academicYear->id)->first();
             if ($teacher) {
                 $exams = $exams->with('questions', 'answers')->where('grade', $teacher->grade)->get();
+                $students = Student::where('academic_year_id', $academicYear->id)->where('grade', $teacher->grade)->where('section', $teacher->section)->get();
                 $component = 'Teacher/Exams';
             } else {
                 $exams = [];
@@ -50,6 +53,7 @@ class ExamController extends Controller
             'academicYears' => AcademicYear::all(),
             'selectedYear' => $academicYear,
             'exams' => $exams,
+            'students' => $students,
         ]);
 
     }

@@ -2,6 +2,7 @@ import GradeCollapse from "@/Components/GradeCollapse";
 import Modal from "@/Components/Modal";
 import SectionCard from "@/Components/SectionCard";
 import YearSelector from "@/Components/YearSelector";
+import { useModal } from "@/hooks/useModal";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import ImportStudentForm from "@/Sections/Admin/Classrooms/ImportStudentForm";
 import SectionForm from "@/Sections/Admin/Classrooms/SectionForm";
@@ -9,7 +10,7 @@ import { AcademicYear, Grade, Section, Student, Teacher } from "@/types";
 import { filterUnassignedTeachers, transformTeachers } from "@/utils";
 import { Head, router, usePage } from "@inertiajs/react";
 import { Upload, XIcon } from "lucide-react";
-import { ReactNode, useEffect, useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 
 type Props = {
@@ -22,8 +23,7 @@ type Props = {
 const Classrooms = ({ teachers, selectedYear, students }: Props) => {
     const { academicYears, activeTeachers } = usePage().props;
     const [currentYear, setCurrentYear] = useState<AcademicYear>(selectedYear);
-    const [showModal, setShowModal] = useState(false);
-    const [formContent, setFormContent] = useState<ReactNode>(null);
+    const { showModal, openModal, closeModal, formContent } = useModal();
 
     const handleYearChange = (newYear: AcademicYear) => {
         setCurrentYear(newYear);
@@ -48,30 +48,28 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
             });
             return;
         }
-        setFormContent(
+        openModal(
             <SectionForm
                 grade={grade}
                 academicYear={currentYear}
-                onCloseModal={() => setShowModal(false)}
+                onCloseModal={closeModal}
                 assignedTeachers={teachers}
             />
         );
-        setShowModal(true);
     };
 
     const handleEditSection = (grade: Grade, section: Section) => {
-        setFormContent(
+        openModal(
             <SectionForm
                 grade={grade}
                 academicYear={currentYear}
-                onCloseModal={() => setShowModal(false)}
+                onCloseModal={closeModal}
                 assignedTeachers={teachers}
                 sectionName={section.name}
                 userId={section.userId}
                 sectionId={section.id}
             />
         );
-        setShowModal(true);
     };
 
     const handleDeleteSection = (id: number) => {
@@ -121,42 +119,48 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
     };
 
     const handleImportStudents = (grade: Grade, section: string) => {
-        setFormContent(
+        openModal(
             <ImportStudentForm
                 academicYearId={currentYear.id}
                 grade={grade.name}
                 section={section}
-                onCloseModal={() => setShowModal(false)}
+                onCloseModal={closeModal}
             />
         );
-        setShowModal(true);
     };
 
     const handleShowStudents = (grade: Grade, section: Section) => {
-        setFormContent(
-            <ol className="px-4 overflow-auto text-gray-700 list-decimal max-h-96 dark:text-gray-100">
-                <button
-                    className="inline-flex items-center justify-center w-full gap-2 px-4 py-2 mb-4 text-gray-100 bg-blue-500 rounded-md"
-                    onClick={() => handleImportStudents(grade, section.name)}
-                >
-                    <Upload size={16} className="mr-2" />
-                    Volver a importar estudiantes
-                </button>
-                <h2></h2>
-                {students
-                    .filter(
-                        (student) =>
-                            student.grade == grade.name &&
-                            student.section == section.name
-                    )
-                    .map((student) => (
-                        <li key={student.id} className="ml-3">
-                            {student.name}
-                        </li>
-                    ))}
-            </ol>
+        openModal(
+            <div>
+                <h2 className="mb-4 text-xl font-semibold text-center text-gray-700 sm:text-2xl dark:text-gray-100">
+                    Lista de estudiantes
+                </h2>
+                <ol className="px-4 mb-4 overflow-auto text-gray-700 list-decimal max-h-96 dark:text-gray-100">
+                    {students
+                        .filter(
+                            (student) =>
+                                student.grade == grade.name &&
+                                student.section == section.name
+                        )
+                        .map((student) => (
+                            <li key={student.id} className="ml-3">
+                                {student.name}
+                            </li>
+                        ))}
+                </ol>
+                <div className="px-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <button
+                        className="inline-flex items-center justify-center w-full gap-2 px-4 py-2 mb-4 text-gray-100 bg-blue-500 rounded-md"
+                        onClick={() =>
+                            handleImportStudents(grade, section.name)
+                        }
+                    >
+                        <Upload size={16} className="mr-2" />
+                        Volver a importar estudiantes
+                    </button>
+                </div>
+            </div>
         );
-        setShowModal(true);
     };
 
     return (
@@ -222,14 +226,14 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
             </div>
             <Modal
                 show={showModal}
-                onClose={() => setShowModal(false)}
+                onClose={closeModal}
                 maxWidth="lg"
-                closeable={true}
+                closeable={false}
             >
-                <div className="relative p-8">
+                <div className="relative px-4 py-4 sm:px-6">
                     <XIcon
                         className="absolute text-gray-500 cursor-pointer top-4 right-4 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                        onClick={() => setShowModal(false)}
+                        onClick={closeModal}
                     />
                     {formContent}
                 </div>
