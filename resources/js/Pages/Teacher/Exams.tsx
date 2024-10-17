@@ -33,13 +33,6 @@ export default function Exams({ selectedYear, exams, students }: Props) {
         });
     };
 
-    const handleSaveEvaluation = (
-        studentId: number,
-        answers: (string | null)[]
-    ) => {
-        console.log(studentId, answers);
-    };
-
     const handleEvaluate = (exam: Exam) => {
         openModal(
             <ExamForm
@@ -47,9 +40,12 @@ export default function Exams({ selectedYear, exams, students }: Props) {
                 students={students}
                 onClose={closeModal}
                 questionCount={exam.questions.length}
-                onSaveEvaluation={handleSaveEvaluation}
             />
         );
+    };
+
+    const handleViewRanking = (exam: Exam) => {
+        console.log(exam);
     };
     return (
         <AuthenticatedLayout>
@@ -78,8 +74,14 @@ export default function Exams({ selectedYear, exams, students }: Props) {
                     {exams.length > 0 ? (
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {exams.map((exam) => {
+                                const evaluatedStudents = new Set(
+                                    exam.answers.map(
+                                        (answer) => answer.student_id
+                                    )
+                                ).size;
+
                                 const state =
-                                    exam.answers.length === students.length
+                                    evaluatedStudents === students.length
                                         ? "complete"
                                         : "evaluating";
                                 return (
@@ -88,10 +90,10 @@ export default function Exams({ selectedYear, exams, students }: Props) {
                                         examName={exam.name}
                                         status={state}
                                         totalStudents={students.length}
-                                        evaluatedStudents={exam.answers.length}
+                                        evaluatedStudents={evaluatedStudents}
                                         onEvaluate={() => handleEvaluate(exam)}
                                         onViewRankings={() =>
-                                            console.log("view rankings")
+                                            handleViewRanking(exam)
                                         }
                                     />
                                 );

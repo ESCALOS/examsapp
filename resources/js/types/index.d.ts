@@ -23,6 +23,7 @@ export type PageProps<
     };
     academicYears: AcademicYear[];
     activeTeachers: User[];
+    exams: Exam[];
 };
 
 export interface AcademicYear {

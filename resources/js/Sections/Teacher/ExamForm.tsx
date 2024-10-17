@@ -1,13 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, ArrowLeft } from "lucide-react";
 import { Exam, Student } from "@/types";
 import StudentList from "./StudentList";
+import { useForm } from "@inertiajs/react";
+import Swal from "sweetalert2";
+import { MdiExchange } from "@/Components/Icons/MdiExchange";
 interface ExamFormProps {
     exam: Exam;
     students: Student[];
     questionCount: number;
     onClose: () => void;
-    onSaveEvaluation: (studentId: number, answers: (string | null)[]) => void;
+}
+
+interface FormProps {
+    student: Student | null;
+    exam: Exam;
+    answers: (string | null)[];
 }
 
 const ExamForm: React.FC<ExamFormProps> = ({
@@ -15,29 +23,53 @@ const ExamForm: React.FC<ExamFormProps> = ({
     students,
     questionCount,
     onClose,
-    onSaveEvaluation,
 }) => {
-    const [selectedStudent, setSelectedStudent] = useState<Student | null>(
-        null
+    const { data, setData, post, processing } = useForm<FormProps>(
+        `ReviewExam${exam.id}`,
+        {
+            student: null,
+            exam: exam,
+            answers: Array(questionCount).fill(null),
+        }
     );
-    const [answers, setAnswers] = useState<(string | null)[]>(
-        Array(questionCount).fill("")
+
+    const [showEvaluated, setShowEvaluated] = useState(false);
+    // Inicializa el estado examAnswers a partir de data.exam
+    const [examAnswers, setExamAnswers] = useState<{ student_id: number }[]>(
+        exam.answers.map((answer) => ({
+            student_id: answer.student_id,
+        }))
     );
 
     const handleStudentSelect = (student: Student) => {
-        setSelectedStudent(student);
-        setAnswers(Array(questionCount).fill(""));
+        // Encuentra las respuestas del estudiante seleccionado si ya existen
+        const existingAnswers = exam.answers.filter(
+            (answer) => answer.student_id === student.id
+        );
+
+        // Si hay respuestas previas, crea un array con las respuestas en el índice correcto
+        const prefilledAnswers = Array(questionCount).fill(null);
+        existingAnswers.forEach((answer) => {
+            prefilledAnswers[answer.question_number - 1] = answer.answer;
+        });
+
+        // Actualiza los datos del formulario con el estudiante y las respuestas prellenadas
+        setData((prevData) => ({
+            ...prevData,
+            student: student,
+            answers: prefilledAnswers,
+        }));
     };
 
     const handleBackToList = () => {
-        setSelectedStudent(null);
+        setData("student", null);
     };
 
     const handleAnswerSelection = (
         questionIndex: number,
         selectedAnswer: string
     ) => {
-        const newAnswers = [...answers];
+        const newAnswers = [...data.answers];
 
         // Si la respuesta actual es la misma que el botón presionado, se desmarca
         if (newAnswers[questionIndex] === selectedAnswer) {
@@ -46,25 +78,72 @@ const ExamForm: React.FC<ExamFormProps> = ({
             newAnswers[questionIndex] = selectedAnswer; // Marcar
         }
 
-        setAnswers(newAnswers);
+        setData("answers", newAnswers);
     };
 
     const handleSaveReview = () => {
-        if (selectedStudent) {
-            onSaveEvaluation(selectedStudent.id, answers);
-            console.log("Examen desde form", exam);
-            handleBackToList();
+        if (data.student) {
+            const uri = route("teacher.exams.review");
+            post(uri, {
+                preserveScroll: true,
+                only: ["exams"],
+                onProgress: () => {
+                    Swal.fire({
+                        title: "Guardando evaluación",
+                        icon: "info",
+                        confirmButtonText: "Aceptar",
+                    });
+                },
+                onSuccess: (page) => {
+                    Swal.fire({
+                        title: "Evaluación guardada",
+                        icon: "success",
+                        confirmButtonText: "Aceptar",
+                    });
+                    // Extrae las nuevas respuestas desde la respuesta del servidor
+                    const updatedAnswers =
+                        page.props.exams.find((e: Exam) => e.id === exam.id)
+                            ?.answers || [];
+
+                    // Actualiza el estado examAnswers
+                    setExamAnswers(
+                        updatedAnswers.map((answer) => ({
+                            student_id: answer.student_id,
+                        }))
+                    );
+                    handleBackToList();
+                },
+                onError: () => {
+                    Swal.fire({
+                        title: "Error al guardar la evaluación",
+                        icon: "error",
+                        confirmButtonText: "Aceptar",
+                    });
+                },
+            });
         }
     };
 
     return (
         <div className="w-full max-w-3xl p-6 overflow-y-auto bg-white rounded-lg dark:bg-gray-800 dark:text-gray-100">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                    {selectedStudent
-                        ? `Revisión: ${selectedStudent.name}`
-                        : `Revisión de ${exam.name}`}
-                </h2>
+                <div className="flex gap-2">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                        {data.student
+                            ? `Revisión: ${data.student.name}`
+                            : showEvaluated
+                            ? `Alumnos evaluados`
+                            : `Alumnos sin evaluar`}
+                    </h2>
+                    <button onClick={() => setShowEvaluated(!showEvaluated)}>
+                        <MdiExchange
+                            width={20}
+                            height={20}
+                            className="text-amber-500 hover:text-amber-600 dark:hover:text-amber-400"
+                        />
+                    </button>
+                </div>
+
                 <button
                     onClick={onClose}
                     className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -73,7 +152,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
                 </button>
             </div>
 
-            {selectedStudent ? (
+            {data.student != null ? (
                 <div>
                     <button
                         onClick={handleBackToList}
@@ -102,7 +181,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
                                                 )
                                             }
                                             className={`px-3 py-1 text-sm rounded-md ${
-                                                option === answers[index]
+                                                option === data.answers[index]
                                                     ? "bg-blue-500 text-white"
                                                     : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                                             } hover:bg-blue-400 dark:hover:bg-blue-600 transition-colors`}
@@ -118,6 +197,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
                         <button
                             onClick={handleSaveReview}
                             className="px-4 py-2 text-white transition-colors bg-green-500 rounded-md hover:bg-green-600"
+                            disabled={processing}
                         >
                             Guardar Revisión
                         </button>
@@ -127,6 +207,8 @@ const ExamForm: React.FC<ExamFormProps> = ({
                 <StudentList
                     students={students}
                     onStudentSelect={handleStudentSelect}
+                    examAnswers={examAnswers}
+                    showEvaluated={showEvaluated}
                 />
             )}
         </div>

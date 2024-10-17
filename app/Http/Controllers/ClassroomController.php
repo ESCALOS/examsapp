@@ -99,7 +99,7 @@ class ClassroomController extends Controller
             }
         });
 
-        // return back()->with('message', 'Se ha eliminado la sección correctamente');
+        return back()->with('message', 'Se ha eliminado la sección correctamente');
     }
 
     public function importStudents(Request $request)
