@@ -5,6 +5,7 @@ import StudentList from "./StudentList";
 import { useForm } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import { MdiExchange } from "@/Components/Icons/MdiExchange";
+import { useEvaluatedStudents } from "@/hooks/useEvaluatedStudents";
 interface ExamFormProps {
     exam: Exam;
     students: Student[];
@@ -32,8 +33,6 @@ const ExamForm: React.FC<ExamFormProps> = ({
             answers: Array(questionCount).fill(null),
         }
     );
-
-    const [showEvaluated, setShowEvaluated] = useState(false);
     // Inicializa el estado examAnswers a partir de data.exam
     const [examAnswers, setExamAnswers] = useState<{ student_id: number }[]>(
         exam.answers.map((answer) => ({
@@ -41,6 +40,14 @@ const ExamForm: React.FC<ExamFormProps> = ({
         }))
     );
 
+    const { evaluatedStudents, notEvaluatedStudents } = useEvaluatedStudents(
+        examAnswers,
+        students
+    );
+
+    const [showEvaluated, setShowEvaluated] = useState(
+        notEvaluatedStudents.length === 0
+    );
     const handleStudentSelect = (student: Student) => {
         // Encuentra las respuestas del estudiante seleccionado si ya existen
         const existingAnswers = exam.answers.filter(
@@ -62,6 +69,15 @@ const ExamForm: React.FC<ExamFormProps> = ({
     };
 
     const handleBackToList = () => {
+        if (notEvaluatedStudents.length === 1) {
+            setShowEvaluated(true);
+            Swal.fire({
+                icon: "success",
+                title: "¡Todos los estudiantes han sido evaluados!",
+                text: "¡Ya puedes ver la tabla de puntajes!",
+            });
+        }
+
         setData("student", null);
     };
 
@@ -105,12 +121,15 @@ const ExamForm: React.FC<ExamFormProps> = ({
                         page.props.exams.find((e: Exam) => e.id === exam.id)
                             ?.answers || [];
 
+                    exam.answers = updatedAnswers;
+
                     // Actualiza el estado examAnswers
                     setExamAnswers(
                         updatedAnswers.map((answer) => ({
                             student_id: answer.student_id,
                         }))
                     );
+
                     handleBackToList();
                 },
                 onError: () => {
@@ -135,13 +154,18 @@ const ExamForm: React.FC<ExamFormProps> = ({
                             ? `Alumnos evaluados`
                             : `Alumnos sin evaluar`}
                     </h2>
-                    <button onClick={() => setShowEvaluated(!showEvaluated)}>
-                        <MdiExchange
-                            width={20}
-                            height={20}
-                            className="text-amber-500 hover:text-amber-600 dark:hover:text-amber-400"
-                        />
-                    </button>
+                    {notEvaluatedStudents.length > 0 &&
+                        evaluatedStudents.length > 0 && (
+                            <button
+                                onClick={() => setShowEvaluated(!showEvaluated)}
+                            >
+                                <MdiExchange
+                                    width={20}
+                                    height={20}
+                                    className="text-amber-500 hover:text-amber-600 dark:hover:text-amber-400"
+                                />
+                            </button>
+                        )}
                 </div>
 
                 <button
@@ -205,9 +229,9 @@ const ExamForm: React.FC<ExamFormProps> = ({
                 </div>
             ) : (
                 <StudentList
-                    students={students}
+                    evaluatedStudents={evaluatedStudents}
+                    notEvaluatedStudents={notEvaluatedStudents}
                     onStudentSelect={handleStudentSelect}
-                    examAnswers={examAnswers}
                     showEvaluated={showEvaluated}
                 />
             )}

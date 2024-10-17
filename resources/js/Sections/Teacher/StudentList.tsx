@@ -1,36 +1,35 @@
 import { Student } from "@/types";
 import { ChevronRight } from "lucide-react";
+import { useEffect } from "react";
+import Swal from "sweetalert2";
 
 type Props = {
-    students: Student[];
-    examAnswers: { student_id: number }[]; // Lista de respuestas del examen
+    evaluatedStudents: Student[];
+    notEvaluatedStudents: Student[];
     showEvaluated: boolean;
     onStudentSelect: (student: Student) => void;
 };
 
 function StudentList({
-    students,
-    examAnswers,
+    evaluatedStudents,
+    notEvaluatedStudents,
     showEvaluated,
     onStudentSelect,
 }: Props) {
-    // Obtener IDs de estudiantes evaluados
-    const evaluatedStudentIds = new Set(
-        examAnswers.map((answer) => answer.student_id)
-    );
-
-    // Separar estudiantes evaluados y no evaluados
-    const evaluatedStudents = students.filter((student) =>
-        evaluatedStudentIds.has(student.id)
-    );
-    const notEvaluatedStudents = students.filter(
-        (student) => !evaluatedStudentIds.has(student.id)
-    );
-
     // Lista de estudiantes que se mostrará
     const displayedStudents = showEvaluated
         ? evaluatedStudents
         : notEvaluatedStudents;
+
+    // useEffect(() => {
+    //     if (notEvaluatedStudents.length === 0) {
+    //         Swal.fire({
+    //             icon: "success",
+    //             title: "¡Todos los estudiantes han sido evaluados!",
+    //             text: "¡Ya puedes ver la tabla de puntajes!",
+    //         });
+    //     }
+    // }, [notEvaluatedStudents]);
 
     return (
         <div>

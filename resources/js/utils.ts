@@ -5,6 +5,7 @@ import {
     Question,
     QuestionModel,
     Section,
+    Student,
     Teacher,
     User,
 } from "./types";
@@ -162,4 +163,57 @@ export const calculateAnswersSummary = (
     });
 
     return { correct, incorrect, notAnswered };
+};
+
+export const generateRanking = (exam: Exam) => {
+    const { questions, answers } = exam;
+
+    // Calcular respuestas correctas, incorrectas y en blanco por estudiante
+    const studentsMap = new Map<
+        number,
+        { student: Student; correct: number; incorrect: number; blank: number }
+    >();
+
+    answers.forEach((answer) => {
+        const correctAnswer = questions.find(
+            (q) => q.question_number === answer.question_number
+        )?.correct_answer;
+        const studentData = studentsMap.get(answer.student_id) || {
+            student: answer.student,
+            correct: 0,
+            incorrect: 0,
+            blank: 0,
+        };
+
+        if (answer.answer === null) {
+            studentData.blank++;
+        } else if (answer.answer === correctAnswer) {
+            studentData.correct++;
+        } else {
+            studentData.incorrect++;
+        }
+
+        studentsMap.set(answer.student_id, studentData);
+    });
+
+    // Ordenar por respuestas correctas y generar el ranking
+    const sortedStudents = Array.from(studentsMap.values()).sort(
+        (a, b) => b.correct - a.correct
+    );
+
+    // Asignar puestos
+    let rank = 1;
+    let previousScore = sortedStudents[0]?.correct || 0;
+
+    return sortedStudents.map((studentData, index) => {
+        if (studentData.correct !== previousScore) {
+            rank = index + 1;
+            previousScore = studentData.correct;
+        }
+
+        return {
+            ...studentData,
+            rank,
+        };
+    });
 };
