@@ -21,16 +21,6 @@ function StudentList({
         ? evaluatedStudents
         : notEvaluatedStudents;
 
-    // useEffect(() => {
-    //     if (notEvaluatedStudents.length === 0) {
-    //         Swal.fire({
-    //             icon: "success",
-    //             title: "¡Todos los estudiantes han sido evaluados!",
-    //             text: "¡Ya puedes ver la tabla de puntajes!",
-    //         });
-    //     }
-    // }, [notEvaluatedStudents]);
-
     return (
         <div>
             {/* Lista de estudiantes */}
