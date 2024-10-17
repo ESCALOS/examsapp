@@ -68,6 +68,7 @@ function SectionForm({
                 : route("admin.classrooms.update-section");
         post(uri, {
             preserveScroll: true,
+            only: ["teachers"],
             onSuccess: () => {
                 // Si la solicitud fue exitosa
                 Swal.fire({

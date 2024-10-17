@@ -88,6 +88,7 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
                 router.visit(route("admin.classrooms.delete-section"), {
                     method: "delete",
                     data: { id: id },
+                    only: ["teachers", "students"],
                     onSuccess: () => {
                         // Si la solicitud fue exitosa
                         Swal.fire({

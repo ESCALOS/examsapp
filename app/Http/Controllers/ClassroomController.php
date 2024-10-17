@@ -11,6 +11,7 @@ use App\Models\Student;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -51,20 +52,29 @@ class ClassroomController extends Controller
             'section' => $request->section,
         ]);
 
-        // return back()->with('message', 'Se ha añadido la sección correctamente');
+        return back()->with('message', 'Se ha añadido la sección correctamente');
     }
 
     public function updateSection(UpdateTeacherRequest $request)
     {
         $request->validated();
 
-        Teacher::find($request->id)
-            ->update([
+        DB::transaction(function () use ($request) {
+            $teacher = Teacher::find($request->id);
+            Student::where('academic_year_id', $request->academicYearId)
+                ->where('grade', $request->grade)
+                ->where('section', $teacher->section)
+                ->update([
+                    'section' => $request->section,
+                ]);
+            $teacher->update([
                 'user_id' => $request->userId,
                 'section' => $request->section,
             ]);
 
-        // return back()->with('message', 'Se ha actualizado la sección correctamente');
+        });
+
+        return back()->with('message', 'Se ha actualizado la sección correctamente');
     }
 
     public function deleteSection(Request $request)
@@ -73,7 +83,21 @@ class ClassroomController extends Controller
             return back()->withErrors(['message' => 'No puedes eliminar secciones']);
         }
 
-        Teacher::find($request->id)->delete();
+        DB::transaction(function () use ($request) {
+            $teacher = Teacher::find($request->id);
+
+            // Asegurarse de que el profesor existe antes de eliminarlo
+            if ($teacher) {
+                // Eliminar estudiantes basados en los criterios
+                Student::where('academic_year_id', 2)
+                    ->where('grade', 1)
+                    ->where('section', 'D')
+                    ->delete();
+
+                // Eliminar al profesor
+                $teacher->delete();
+            }
+        });
 
         // return back()->with('message', 'Se ha eliminado la sección correctamente');
     }

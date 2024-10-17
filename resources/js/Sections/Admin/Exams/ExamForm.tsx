@@ -95,6 +95,7 @@ export default function ExamForm({
                 : route("admin.exams.update-exam");
         post(uri, {
             preserveScroll: true,
+            only: ["exams"],
             onProgress: () => {
                 // Si la solicitud está en curso
                 Swal.fire({

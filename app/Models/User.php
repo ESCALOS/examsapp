@@ -52,9 +52,9 @@ class User extends Authenticatable
         ];
     }
 
-    public function teachers(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function teachers(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasOne(Teacher::class);
+        return $this->hasMany(Teacher::class);
     }
 
     public function isAdmin(): bool

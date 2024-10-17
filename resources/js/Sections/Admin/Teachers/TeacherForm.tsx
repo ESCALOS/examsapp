@@ -26,6 +26,7 @@ function TeacherForm({ teacher, closeModal }: Props) {
                 : route("admin.teachers.update-teacher");
         post(uri, {
             preserveScroll: true,
+            only: ["teachers", "activeTeachers"],
             onProgress: () => {
                 // Si la solicitud está en curso
                 Swal.fire({
@@ -56,7 +57,7 @@ function TeacherForm({ teacher, closeModal }: Props) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            <h2 className="mb-4 text-3xl font-semibold text-center text-gray-700 dark:text-gray-100">
+            <h2 className="mb-4 text-xl font-semibold text-center text-gray-700 sm:text-2xl dark:text-gray-100">
                 {teacher === undefined ? "Nuevo docente" : "Editar docente"}
             </h2>
             {isDirty && (
@@ -65,18 +66,22 @@ function TeacherForm({ teacher, closeModal }: Props) {
             <div>
                 <InputLabel htmlFor="dni" value="DNI del docente" />
                 <input
+                    id="dni"
+                    name="dni"
                     type="text"
                     value={data.dni}
                     onChange={(e) => setData("dni", e.target.value)}
                     placeholder="DNI del docente"
                     className="flex-grow w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     required
+                    autoComplete="dni"
                 />
                 <InputError message={errors.dni} className="mt-2" />
             </div>
             <div>
                 <InputLabel htmlFor="name" value="Nombre del docente" />
                 <input
+                    id="name"
                     type="text"
                     value={data.name}
                     name="name"
@@ -84,6 +89,7 @@ function TeacherForm({ teacher, closeModal }: Props) {
                     placeholder="Nombre del docente"
                     className="flex-grow w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     required
+                    autoComplete="name"
                 />
                 <InputError message={errors.name} className="mt-2" />
             </div>

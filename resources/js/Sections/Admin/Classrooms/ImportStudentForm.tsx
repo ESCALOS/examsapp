@@ -32,6 +32,7 @@ function ImportStudentForm({
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         post(route("admin.classrooms.import-students"), {
+            only: ["students"],
             onProgress: () => {
                 // Si la solicitud está en curso
                 Swal.fire({

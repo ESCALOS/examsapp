@@ -46,6 +46,7 @@ function Teacher({ teachers }: Props) {
                 router.visit(route("admin.teachers.toggle-status"), {
                     method: "delete",
                     data: { id: id, is_active: isActive },
+                    only: ["teachers", "activeTeachers"],
                     onSuccess: () => {
                         // Si la solicitud fue exitosa
                         Swal.fire({

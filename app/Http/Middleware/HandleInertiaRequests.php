@@ -6,6 +6,7 @@ use App\Enums\RoleEnum;
 use App\Models\AcademicYear;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -36,7 +37,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => User::with('teachers')->find(Auth::id()),
             ],
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),

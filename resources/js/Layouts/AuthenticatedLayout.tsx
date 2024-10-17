@@ -197,7 +197,7 @@ export default function Authenticated({
                                 <ResponsiveNavLink
                                     href={route("admin.teachers.index")}
                                     active={route().current(
-                                        "admin.teacher.index"
+                                        "admin.teachers.index"
                                     )}
                                 >
                                     Docentes
@@ -219,7 +219,20 @@ export default function Authenticated({
                                 {user.name}
                             </div>
                             <div className="text-sm font-medium text-gray-500">
-                                {user.email}
+                                {user.role === "admin" ? (
+                                    <span>Administrador</span>
+                                ) : user.teachers?.length > 0 ? (
+                                    <span>
+                                        Aula:{" "}
+                                        {
+                                            user.teachers[
+                                                user.teachers.length - 1
+                                            ].section
+                                        }
+                                    </span>
+                                ) : (
+                                    <span>Sin aula seleccionada</span>
+                                )}
                             </div>
                         </div>
 

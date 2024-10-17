@@ -45,6 +45,8 @@ class TeacherController extends Controller
             'password' => Hash::make($request->dni),
             'remember_token' => Str::random(10),
         ]);
+
+        return back()->with('message', 'Usuario creado exitosamente');
     }
 
     /**
@@ -76,6 +78,8 @@ class TeacherController extends Controller
             'dni' => $request->dni,
             'name' => $request->name,
         ]);
+
+        return back()->with('message', 'Usuario actualizado exitosamente');
     }
 
     /**
@@ -86,5 +90,9 @@ class TeacherController extends Controller
         User::find($request->id)->update([
             'is_active' => ! $request->is_active || false,
         ]);
+
+        $type = $request->is_active ? 'habilitado' : 'inhabilitado';
+
+        return back()->with('message', 'Usuario'.$type.'exitosamente');
     }
 }

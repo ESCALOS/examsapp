@@ -8,6 +8,7 @@ export interface User {
     email_verified_at?: string;
     role: "admin" | "teacher";
     is_active: boolean;
+    teachers: Teacher[];
 }
 
 export type PageProps<
@@ -66,12 +67,22 @@ export interface QuestionModel {
     correct_answer: string;
 }
 
+export interface Answer {
+    id: number;
+    student_id: number;
+    exam_id: number;
+    question_number: number;
+    answer: string;
+    student: Student;
+}
+
 export interface Exam {
     id: number;
     name: string;
     academicYearId: number;
     grade: string;
     questions?: QuestionModel[];
+    answers?: Answer[];
 }
 
 export interface ExamsByGrade {

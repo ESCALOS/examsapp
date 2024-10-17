@@ -6,7 +6,7 @@ import ExamForm from "@/Sections/Admin/Exams/ExamForm";
 import { AcademicYear, Exam, ExamsByGrade, QuestionModel } from "@/types";
 import { groupExamsByGrade } from "@/utils";
 import { Head, router, usePage } from "@inertiajs/react";
-import { EyeIcon, PencilIcon, Trash, Trash2Icon, XIcon } from "lucide-react";
+import { PencilIcon, Trash2Icon, XIcon } from "lucide-react";
 import { ReactNode, useState } from "react";
 import Swal from "sweetalert2";
 
@@ -76,6 +76,7 @@ const Exams = ({ selectedYear, exams }: Props) => {
                 router.visit(route("admin.exams.delete-exam"), {
                     method: "delete",
                     data: { id: id },
+                    only: ["exams"],
                     onSuccess: () => {
                         // Si la solicitud fue exitosa
                         Swal.fire({
