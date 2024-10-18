@@ -44,13 +44,11 @@ export interface Teacher {
 export interface Student {
     id: number;
     name: string;
-    academic_year_id: number;
-    grade: string;
-    section: string;
+    teacher: Teacher[];
     status: string;
 }
 export interface Grade {
-    name: string;
+    name: number;
     sections: Section[];
 }
 

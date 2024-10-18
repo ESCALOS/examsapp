@@ -9,9 +9,9 @@ use App\Imports\StudentImport;
 use App\Models\AcademicYear;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -19,25 +19,35 @@ class ClassroomController extends Controller
 {
     public function index(string $year = '')
     {
-        if (empty($year)) {
-            $year = AcademicYear::orderBy('id', 'desc')->first()->year;
-        }
-        // Buscar el año académico según el slug del año
-        $academicYear = AcademicYear::where('year', $year)->firstOrFail();
+        // Buscar el año académico según el slug del año o el más reciente si no se proporciona
+        $academicYear = AcademicYear::when(empty($year), function ($query) {
+            return $query->orderBy('id', 'desc');
+        }, function ($query) use ($year) {
+            return $query->where('year', $year);
+        })->select('id', 'year')->firstOrFail();
 
-        // Obtener los profesores para ese año académico
-        $teachers = Teacher::with('user', 'academicYear')
+        // Obtener los profesores asignados con la información del usuario y año académico
+        $assignedTeachers = Teacher::select('id', 'grade', 'section', 'user_id', 'academic_year_id')
+            ->with([
+                'user:id,dni,name,is_active',  // Solo los campos necesarios de User
+            ])
             ->where('academic_year_id', $academicYear->id)
             ->get();
 
-        $students = Student::where('academic_year_id', $academicYear->id)->get();
+        // Docentes no asignados
+        $unassignedTeachers = User::select('id', 'dni', 'name', 'is_active')
+            ->whereDoesntHave('teachers', function ($query) use ($academicYear) {
+                $query->where('academic_year_id', $academicYear->id);
+            })
+            ->where('role', RoleEnum::TEACHER)  // Filtrar solo docentes
+            ->get();
 
-        // Devolver la vista de Inertia con los profesores filtrados
+        // Devolver la vista de Inertia con los datos procesados
         return Inertia::render('Admin/Classrooms', [
-            'year' => $year,
-            'teachers' => $teachers,
-            'selectedYear' => $academicYear, // Este será el año seleccionado
-            'students' => $students,
+            'year' => $academicYear->year,
+            'assignedTeachers' => $assignedTeachers,
+            'unassignedTeachers' => $unassignedTeachers,
+            'selectedYear' => $academicYear, // Año académico seleccionado
         ]);
     }
 
@@ -59,20 +69,10 @@ class ClassroomController extends Controller
     {
         $request->validated();
 
-        DB::transaction(function () use ($request) {
-            $teacher = Teacher::find($request->id);
-            Student::where('academic_year_id', $request->academicYearId)
-                ->where('grade', $request->grade)
-                ->where('section', $teacher->section)
-                ->update([
-                    'section' => $request->section,
-                ]);
-            $teacher->update([
-                'user_id' => $request->userId,
-                'section' => $request->section,
-            ]);
-
-        });
+        Teacher::find($request->id)->update([
+            'user_id' => $request->userId,
+            'section' => $request->section,
+        ]);
 
         return back()->with('message', 'Se ha actualizado la sección correctamente');
     }
@@ -83,21 +83,7 @@ class ClassroomController extends Controller
             return back()->withErrors(['message' => 'No puedes eliminar secciones']);
         }
 
-        DB::transaction(function () use ($request) {
-            $teacher = Teacher::find($request->id);
-
-            // Asegurarse de que el profesor existe antes de eliminarlo
-            if ($teacher) {
-                // Eliminar estudiantes basados en los criterios
-                Student::where('academic_year_id', 2)
-                    ->where('grade', 1)
-                    ->where('section', 'D')
-                    ->delete();
-
-                // Eliminar al profesor
-                $teacher->delete();
-            }
-        });
+        Teacher::find($request->id)->delete();
 
         return back()->with('message', 'Se ha eliminado la sección correctamente');
     }

@@ -29,7 +29,7 @@ class StoreExamRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'academicYearId' => ['required', 'integer', 'exists:academic_years,id'],
-            'grade' => ['required', 'string', 'max:255', Rule::enum(GradeEnum::class)],
+            'grade' => ['required', Rule::enum(GradeEnum::class)],
             // Validar que el campo questions sea un array y que tenga al menos 2 preguntas
             'questions' => ['required', 'array', 'min:2'],
 

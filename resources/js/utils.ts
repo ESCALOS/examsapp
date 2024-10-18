@@ -30,7 +30,7 @@ export function transformTeachers(teachers: Teacher[]): Grade[] {
 
     // Inicializar el array de grados (1 al 6)
     for (let grade = 1; grade <= 6; grade++) {
-        result.push({ name: grade.toString(), sections: [] });
+        result.push({ name: grade, sections: [] });
     }
 
     // Recorrer la lista de docentes
@@ -41,7 +41,7 @@ export function transformTeachers(teachers: Teacher[]): Grade[] {
         const teacherId = teacher.user.id; // Obtener el ID del docente
 
         // Buscar el grado correspondiente en el array
-        const gradeObj = result.find((g) => g.name === grade.toString());
+        const gradeObj = result.find((g) => g.name === grade);
         if (gradeObj) {
             // Buscar si la sección ya existe en el grado
             let sectionObj = gradeObj.sections.find((s) => s.name === section);

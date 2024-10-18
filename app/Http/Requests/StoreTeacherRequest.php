@@ -29,8 +29,8 @@ class StoreTeacherRequest extends FormRequest
         return [
             'userId' => ['required', 'integer', 'exists:users,id'],
             'academicYearId' => ['required', 'integer', 'exists:academic_years,id'],
-            'grade' => ['required', 'string', 'max:255', Rule::enum(GradeEnum::class)],
-            'section' => ['required', 'string', 'max:255', Rule::enum(SectionEnum::class)],
+            'grade' => ['required', Rule::enum(GradeEnum::class)],
+            'section' => ['required', Rule::enum(SectionEnum::class)],
         ];
     }
 }

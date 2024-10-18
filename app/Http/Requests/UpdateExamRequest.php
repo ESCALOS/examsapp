@@ -24,7 +24,7 @@ class UpdateExamRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'academicYearId' => ['required', 'integer', 'exists:academic_years,id'],
-            'grade' => ['required', 'string', 'max:255', Rule::enum(GradeEnum::class)],
+            'grade' => ['required', Rule::enum(GradeEnum::class)],
             'questions' => ['required', 'array', 'min:2'],
             'questions.*.id' => ['required', 'integer'],
             'questions.*.correctAnswer' => ['required', Rule::enum(AlternativeEnum::class)],

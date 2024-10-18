@@ -1,10 +1,10 @@
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
-import { AcademicYear, Grade, Teacher } from "@/types";
-import { availableSections, filterUnassignedTeachers } from "@/utils";
+import { AcademicYear, Grade, User } from "@/types";
+import { availableSections } from "@/utils";
 import { Select } from "@headlessui/react";
-import { useForm, usePage } from "@inertiajs/react";
-import React from "react";
+import { useForm } from "@inertiajs/react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
 type Props = {
@@ -12,9 +12,9 @@ type Props = {
     grade: Grade;
     academicYear: AcademicYear;
     onCloseModal: () => void;
-    assignedTeachers: Teacher[];
+    unassignedTeachers: User[];
     sectionName?: string;
-    userId?: number;
+    currentTeacher?: User;
 };
 
 function SectionForm({
@@ -22,18 +22,34 @@ function SectionForm({
     grade,
     academicYear,
     sectionName,
-    userId,
+    currentTeacher,
     onCloseModal,
-    assignedTeachers,
+    unassignedTeachers: initialUnassignedTeachers,
 }: Props) {
-    const { activeTeachers } = usePage().props;
     const sections = availableSections(grade.sections, sectionName);
-    const teachers = filterUnassignedTeachers(
-        activeTeachers,
-        assignedTeachers,
-        userId
+
+    // Estado para gestionar los profesores no asignados
+    const [unassignedTeachers, setUnassignedTeachers] = useState<User[]>(
+        initialUnassignedTeachers
     );
-    if (teachers.length === 0) {
+
+    useEffect(() => {
+        if (currentTeacher !== undefined) {
+            // Usar setState para agregar el profesor actual solo una vez
+            setUnassignedTeachers((prevTeachers) => {
+                if (
+                    !prevTeachers.find(
+                        (teacher) => teacher.id === currentTeacher.id
+                    )
+                ) {
+                    return [...prevTeachers, currentTeacher];
+                }
+                return prevTeachers; // No agregar si ya está en la lista
+            });
+        }
+    }, [currentTeacher]); // Se ejecuta cuando cambia currentTeacher
+
+    if (unassignedTeachers.length === 0) {
         Swal.fire({
             icon: "warning",
             title: "Advertencia",
@@ -53,7 +69,7 @@ function SectionForm({
     }
     const { data, setData, processing, post, errors, reset } = useForm({
         id: sectionId,
-        userId: userId || teachers[0].id,
+        userId: currentTeacher?.id || unassignedTeachers[0].id,
         section: sectionName || sections[0],
         academicYearId: academicYear.id,
         grade: grade.name,
@@ -68,7 +84,7 @@ function SectionForm({
                 : route("admin.classrooms.update-section");
         post(uri, {
             preserveScroll: true,
-            only: ["teachers"],
+            only: ["assignedTeachers", "unassignedTeachers", "grades"],
             onSuccess: () => {
                 // Si la solicitud fue exitosa
                 Swal.fire({
@@ -83,7 +99,7 @@ function SectionForm({
 
                 onCloseModal();
             },
-            onError: (page) => {
+            onError: () => {
                 // Si hubo algún error, mostrarlo en SweetAlert
                 Swal.fire({
                     icon: "warning",
@@ -114,7 +130,7 @@ function SectionForm({
                     }
                     className="block w-full mt-1 rounded-md"
                 >
-                    {teachers.map((teacher) => (
+                    {unassignedTeachers.map((teacher) => (
                         <option key={teacher.id} value={teacher.id}>
                             {teacher.name}
                         </option>

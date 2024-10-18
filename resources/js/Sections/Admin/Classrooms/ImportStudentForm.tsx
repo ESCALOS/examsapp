@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 
 type Props = {
     academicYearId: number;
-    grade: string;
+    grade: number;
     section: string;
     onCloseModal: () => void;
 };

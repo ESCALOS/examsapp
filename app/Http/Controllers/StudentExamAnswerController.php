@@ -35,9 +35,13 @@ class StudentExamAnswerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(StudentExamAnswer $studentExamAnswer)
+    public function show(int $examId) {}
+
+    public function showByStudent(int $examId, int $studentId, int $academicYearId)
     {
-        //
+        //crea para responder con un json las respuestas por estudiante.
+        $answers = StudentExamAnswer::where('exam_id', $examId)->where('student_id', $studentId)->where('academic_year_id', $academicYearId)->get();
+
     }
 
     /**

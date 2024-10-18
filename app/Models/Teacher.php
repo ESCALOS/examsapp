@@ -35,4 +35,9 @@ class Teacher extends Model
     {
         return $this->belongsTo(AcademicYear::class);
     }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
 }

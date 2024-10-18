@@ -28,24 +28,15 @@ class ExamController extends Controller
 
         // Buscar el año académico según el slug del año
         $academicYear = AcademicYear::where('year', $year)->firstOrFail();
-        $component = 'Admin/Exams';
         $user = Auth::user();
         $teacherId = Auth::user()->role === RoleEnum::TEACHER ? $user->id : 0;
-        $students = [];
-        $exams = [];
 
         if ($teacherId > 0) {
             $teacher = Teacher::where('user_id', $user->id)->where('academic_year_id', $academicYear->id)->first();
 
             if ($teacher) {
                 // Obtener todos los exámenes y filtrar las respuestas mediante subconsulta
-                $exams = Exam::with(['questions', 'answers' => function ($query) use ($teacher) {
-                    $query->whereHas('student', function ($q) use ($teacher) {
-                        $q->where('grade', $teacher->grade)
-                            ->where('section', $teacher->section);
-                    })
-                        ->with('student');
-                }])
+                $exams = Exam::with(['questions'])
                     ->where('academic_year_id', $academicYear->id)
                     ->where('grade', $teacher->grade)
                     ->get();
@@ -55,23 +46,28 @@ class ExamController extends Controller
                     ->where('section', $teacher->section)
                     ->get();
 
-                $component = 'Teacher/Exams';
+                return Inertia::render('Admin/Exams', [
+                    'year' => $year,
+                    'academicYears' => AcademicYear::all(),
+                    'selectedYear' => $academicYear,
+                    'exams' => $exams,
+                    'students' => $students,
+                ]);
+
             }
         } else {
             // Si no es un profesor, obtener todos los exámenes
-            $exams = Exam::with(['questions', 'answers.student'])
+            $exams = Exam::with(['questions'])
                 ->where('academic_year_id', $academicYear->id)
                 ->get();
-        }
 
-        // Devolver la vista de Inertia con los profesores filtrados
-        return Inertia::render($component, [
-            'year' => $year,
-            'academicYears' => AcademicYear::all(),
-            'selectedYear' => $academicYear,
-            'exams' => $exams,
-            'students' => $students,
-        ]);
+            return Inertia::render('Admin/Exams', [
+                'year' => $year,
+                'academicYears' => AcademicYear::all(),
+                'selectedYear' => $academicYear,
+                'exams' => $exams,
+            ]);
+        }
     }
 
     /**

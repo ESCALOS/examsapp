@@ -6,8 +6,8 @@ import { useModal } from "@/hooks/useModal";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import ImportStudentForm from "@/Sections/Admin/Classrooms/ImportStudentForm";
 import SectionForm from "@/Sections/Admin/Classrooms/SectionForm";
-import { AcademicYear, Grade, Section, Student, Teacher } from "@/types";
-import { filterUnassignedTeachers, transformTeachers } from "@/utils";
+import { AcademicYear, Grade, Section, Student, Teacher, User } from "@/types";
+import { transformTeachers } from "@/utils";
 import { Head, router, usePage } from "@inertiajs/react";
 import { Upload, XIcon } from "lucide-react";
 import { useState } from "react";
@@ -15,13 +15,17 @@ import Swal from "sweetalert2";
 
 type Props = {
     year: string;
-    teachers: Teacher[];
+    assignedTeachers: Teacher[];
+    unassignedTeachers: User[];
     selectedYear: AcademicYear;
-    students: Student[];
 };
 
-const Classrooms = ({ teachers, selectedYear, students }: Props) => {
-    const { academicYears, activeTeachers } = usePage().props;
+const Classrooms = ({
+    assignedTeachers,
+    unassignedTeachers,
+    selectedYear,
+}: Props) => {
+    const { academicYears } = usePage().props;
     const [currentYear, setCurrentYear] = useState<AcademicYear>(selectedYear);
     const { showModal, openModal, closeModal, formContent } = useModal();
 
@@ -33,11 +37,7 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
         });
     };
 
-    const grades = transformTeachers(teachers);
-    const unassignedTeachers = filterUnassignedTeachers(
-        activeTeachers,
-        teachers
-    );
+    const grades = transformTeachers(assignedTeachers);
 
     const handleAddSection = (grade: Grade) => {
         if (grade.sections.length === 5) {
@@ -53,7 +53,7 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
                 grade={grade}
                 academicYear={currentYear}
                 onCloseModal={closeModal}
-                assignedTeachers={teachers}
+                unassignedTeachers={unassignedTeachers}
             />
         );
     };
@@ -64,9 +64,13 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
                 grade={grade}
                 academicYear={currentYear}
                 onCloseModal={closeModal}
-                assignedTeachers={teachers}
+                unassignedTeachers={unassignedTeachers}
                 sectionName={section.name}
-                userId={section.userId}
+                currentTeacher={
+                    assignedTeachers.find(
+                        (teacher) => teacher.user_id === section.userId
+                    )?.user
+                }
                 sectionId={section.id}
             />
         );
@@ -86,7 +90,7 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
                 router.visit(route("admin.classrooms.delete-section"), {
                     method: "delete",
                     data: { id: id },
-                    only: ["teachers", "students"],
+                    only: ["assignedTeachers", "unassignedTeachers", "grades"],
                     onSuccess: () => {
                         // Si la solicitud fue exitosa
                         Swal.fire({
@@ -136,17 +140,7 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
                     Lista de estudiantes
                 </h2>
                 <ol className="px-4 mb-4 overflow-auto text-gray-700 list-decimal max-h-96 dark:text-gray-100">
-                    {students
-                        .filter(
-                            (student) =>
-                                student.grade == grade.name &&
-                                student.section == section.name
-                        )
-                        .map((student) => (
-                            <li key={student.id} className="ml-3">
-                                {student.name}
-                            </li>
-                        ))}
+                    <li className="ml-3">Sin estudiantes</li>
                 </ol>
                 <div className="px-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                     <button
@@ -177,8 +171,9 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
                 />
                 {/* Aquí iteras sobre los grados y profesores */}
                 <div className="px-4 mx-auto mt-6 sm:mt-8 max-w-7xl">
-                    {grades.length > 0 &&
-                        grades.map((grade) => (
+                    {grades
+                        .sort((a, b) => a.name - b.name)
+                        .map((grade) => (
                             <GradeCollapse
                                 key={grade.name}
                                 grade={grade}
@@ -195,10 +190,9 @@ const Classrooms = ({ teachers, selectedYear, students }: Props) => {
                                         )
                                         .map((section) => (
                                             <SectionCard
-                                                key={section.id}
+                                                key={section.name}
                                                 grade={grade}
                                                 section={section}
-                                                students={students}
                                                 handleEditSection={() =>
                                                     handleEditSection(
                                                         grade,

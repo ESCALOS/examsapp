@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Enums\RoleEnum;
 use App\Models\AcademicYear;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -47,7 +46,6 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message'),
             ],
             'academicYears' => AcademicYear::all(),
-            'activeTeachers' => User::where('role', RoleEnum::TEACHER)->where('is_active', 1)->get(),
         ];
     }
 }
