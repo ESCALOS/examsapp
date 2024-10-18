@@ -84,7 +84,8 @@ function SectionForm({
                 : route("admin.classrooms.update-section");
         post(uri, {
             preserveScroll: true,
-            only: ["assignedTeachers", "unassignedTeachers", "grades"],
+            only: ["assignedTeachers", "unassignedTeachers"],
+            preserveState: true,
             onSuccess: () => {
                 // Si la solicitud fue exitosa
                 Swal.fire({

@@ -24,6 +24,7 @@ export type PageProps<
     academicYears: AcademicYear[];
     activeTeachers: User[];
     exams: Exam[];
+    students: Student[];
 };
 
 export interface AcademicYear {
@@ -39,6 +40,7 @@ export interface Teacher {
     section: string;
     user: User;
     academicYear: AcademicYear;
+    student_count: number;
 }
 
 export interface Student {
@@ -57,6 +59,7 @@ export interface Section {
     name: string;
     teacher: string;
     userId: number;
+    studentCount: number;
 }
 
 export interface QuestionModel {

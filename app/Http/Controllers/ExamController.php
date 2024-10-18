@@ -41,19 +41,16 @@ class ExamController extends Controller
                     ->where('grade', $teacher->grade)
                     ->get();
 
-                $students = Student::where('academic_year_id', $academicYear->id)
-                    ->where('grade', $teacher->grade)
-                    ->where('section', $teacher->section)
+                $students = Student::where('teacher_id', $teacher->id)
                     ->get();
 
-                return Inertia::render('Admin/Exams', [
+                return Inertia::render('Teacher/Exams', [
                     'year' => $year,
                     'academicYears' => AcademicYear::all(),
                     'selectedYear' => $academicYear,
                     'exams' => $exams,
                     'students' => $students,
                 ]);
-
             }
         } else {
             // Si no es un profesor, obtener todos los exámenes

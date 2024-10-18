@@ -10,11 +10,13 @@ Route::inertia('/', 'Admin/Dashboard')->name('dashboard');
 
 Route::prefix('aulas')->name('classrooms.')->controller(ClassroomController::class)->group(function () {
 
-    Route::get('/{year?}', [ClassroomController::class, 'index'])->name('index');
+    Route::get('/{year?}', 'index')->name('index');
     Route::post('/agregar-seccion', 'addSection')->name('add-section');
     Route::post('/actualizar-seccion', 'updateSection')->name('update-section');
     Route::delete('/eliminar-seccion', 'deleteSection')->name('delete-section');
     Route::post('/importar-estudiantes', 'importStudents')->name('import-students');
+    Route::get('/mostrar-estudiantes-por-docente/{teacherId}', 'getStudentsByTeacher')->name('show-students-by-teacher');
+    Route::delete('/eliminar-estudiante', 'deleteStudent')->name('delete-student');
 });
 
 // Agrupamos las rutas relacionadas con 'examenes' bajo el prefijo 'examenes' y añadimos un prefijo al nombre de las rutas

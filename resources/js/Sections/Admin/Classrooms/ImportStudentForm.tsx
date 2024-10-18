@@ -4,23 +4,14 @@ import { useForm } from "@inertiajs/react";
 import Swal from "sweetalert2";
 
 type Props = {
-    academicYearId: number;
-    grade: number;
-    section: string;
+    teacherId: number;
     onCloseModal: () => void;
 };
 
-function ImportStudentForm({
-    academicYearId,
-    grade,
-    section,
-    onCloseModal,
-}: Props) {
+function ImportStudentForm({ teacherId, onCloseModal }: Props) {
     const { setData, post, processing } = useForm({
         file: undefined as File | undefined,
-        academicYearId: academicYearId,
-        grade: grade,
-        section: section,
+        teacherId,
     });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +23,7 @@ function ImportStudentForm({
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         post(route("admin.classrooms.import-students"), {
-            only: ["students"],
+            only: ["assignedTeachers"],
             onProgress: () => {
                 // Si la solicitud está en curso
                 Swal.fire({

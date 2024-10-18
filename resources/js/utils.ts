@@ -25,7 +25,7 @@ export function availableSections(
     );
 }
 
-export function transformTeachers(teachers: Teacher[]): Grade[] {
+export function groupBySections(teachers: Teacher[]): Grade[] {
     const result: Grade[] = [];
 
     // Inicializar el array de grados (1 al 6)
@@ -53,6 +53,7 @@ export function transformTeachers(teachers: Teacher[]): Grade[] {
                     name: section,
                     teacher: teacherName,
                     userId: teacherId,
+                    studentCount: teacher.student_count,
                 };
                 gradeObj.sections.push(sectionObj);
             } else {
@@ -60,6 +61,7 @@ export function transformTeachers(teachers: Teacher[]): Grade[] {
                 sectionObj.id = teacher.id;
                 sectionObj.teacher = teacherName;
                 sectionObj.userId = teacherId;
+                sectionObj.studentCount = teacher.student_count;
             }
         }
     });

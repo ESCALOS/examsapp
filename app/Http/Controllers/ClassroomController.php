@@ -12,6 +12,7 @@ use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -26,13 +27,25 @@ class ClassroomController extends Controller
             return $query->where('year', $year);
         })->select('id', 'year')->firstOrFail();
 
-        // Obtener los profesores asignados con la información del usuario y año académico
+        // Obtener los profesores asignados con la información del usuario, año académico y cantidad de estudiantes
         $assignedTeachers = Teacher::select('id', 'grade', 'section', 'user_id', 'academic_year_id')
             ->with([
                 'user:id,dni,name,is_active',  // Solo los campos necesarios de User
+                'students:id,teacher_id', // Cargar estudiantes relacionados
             ])
             ->where('academic_year_id', $academicYear->id)
-            ->get();
+            ->get()
+            ->map(function ($teacher) {
+                return [
+                    'id' => $teacher->id,
+                    'grade' => $teacher->grade,
+                    'section' => $teacher->section,
+                    'user_id' => $teacher->user_id,
+                    'academic_year_id' => $teacher->academic_year_id,
+                    'student_count' => $teacher->students->count(), // Contar estudiantes
+                    'user' => $teacher->user, // Incluir información del usuario
+                ];
+            });
 
         // Docentes no asignados
         $unassignedTeachers = User::select('id', 'dni', 'name', 'is_active')
@@ -84,21 +97,41 @@ class ClassroomController extends Controller
         }
 
         Teacher::find($request->id)->delete();
-
-        return back()->with('message', 'Se ha eliminado la sección correctamente');
     }
 
     public function importStudents(Request $request)
     {
         $file = $request->file('file');
 
-        Student::where('academic_year_id', $request->academicYearId)
-            ->where('grade', $request->grade)
-            ->where('section', $request->section)
-            ->delete();
+        try {
+            Excel::import(new StudentImport($request->teacherId), $file);
 
-        Excel::import(new StudentImport($request->academicYearId, $request->grade, $request->section), $file);
+            // Redirigir o retornar éxito
+            return back()->with('message', 'Se han importado correctamente los estudiantes');
+        } catch (\Exception $e) {
+            Log::error('Error al importar estudiantes: '.$e->getMessage());
 
-        return back()->with('message', 'Se han importado correctamente los estudiantes');
+            // Manejar el error, tal vez redirigir con un mensaje de error
+            return back()->withErrors('error', $e->getMessage());
+        }
+
+    }
+
+    public function getStudentsByTeacher($teacherId)
+    {
+        $students = Student::where('teacher_id', $teacherId)->select('id', 'name')->get();
+
+        return response()->json($students);
+    }
+
+    public function deleteStudent(Request $request)
+    {
+        if (Auth::user()->role !== RoleEnum::ADMIN) {
+            return back()->withErrors(['message' => 'No puedes eliminar estudiantes']);
+        }
+
+        Student::find($request->id)->delete();
+
+        return back()->with('message', 'Se ha eliminado el estudiante correctamente');
     }
 }

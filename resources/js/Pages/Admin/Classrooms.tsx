@@ -4,12 +4,11 @@ import SectionCard from "@/Components/SectionCard";
 import YearSelector from "@/Components/YearSelector";
 import { useModal } from "@/hooks/useModal";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
-import ImportStudentForm from "@/Sections/Admin/Classrooms/ImportStudentForm";
 import SectionForm from "@/Sections/Admin/Classrooms/SectionForm";
-import { AcademicYear, Grade, Section, Student, Teacher, User } from "@/types";
-import { transformTeachers } from "@/utils";
+import { AcademicYear, Grade, Teacher, User } from "@/types";
+import { groupBySections } from "@/utils";
 import { Head, router, usePage } from "@inertiajs/react";
-import { Upload, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { useState } from "react";
 import Swal from "sweetalert2";
 
@@ -37,7 +36,7 @@ const Classrooms = ({
         });
     };
 
-    const grades = transformTeachers(assignedTeachers);
+    const grades = groupBySections(assignedTeachers);
 
     const handleAddSection = (grade: Grade) => {
         if (grade.sections.length === 5) {
@@ -55,105 +54,6 @@ const Classrooms = ({
                 onCloseModal={closeModal}
                 unassignedTeachers={unassignedTeachers}
             />
-        );
-    };
-
-    const handleEditSection = (grade: Grade, section: Section) => {
-        openModal(
-            <SectionForm
-                grade={grade}
-                academicYear={currentYear}
-                onCloseModal={closeModal}
-                unassignedTeachers={unassignedTeachers}
-                sectionName={section.name}
-                currentTeacher={
-                    assignedTeachers.find(
-                        (teacher) => teacher.user_id === section.userId
-                    )?.user
-                }
-                sectionId={section.id}
-            />
-        );
-    };
-
-    const handleDeleteSection = (id: number) => {
-        Swal.fire({
-            icon: "warning",
-            title: "Advertencia",
-            text: "Esta acción no se puede deshacer",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, eliminar sección",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.visit(route("admin.classrooms.delete-section"), {
-                    method: "delete",
-                    data: { id: id },
-                    only: ["assignedTeachers", "unassignedTeachers", "grades"],
-                    onSuccess: () => {
-                        // Si la solicitud fue exitosa
-                        Swal.fire({
-                            icon: "success",
-                            title: "¡Eliminado!",
-                            text: "La sección se ha eliminado correctamente",
-                        });
-                    },
-                    onProgress: () => {
-                        // Si la solicitud está en curso
-                        Swal.fire({
-                            icon: "info",
-                            title: "Eliminando...",
-                            text: "La sección se está eliminando",
-                        });
-                    },
-                    onError: (page) => {
-                        // Si hubo algún error, mostrarlo en SweetAlert
-                        Swal.fire({
-                            icon: "warning",
-                            title: "Advertencia",
-                            text:
-                                page.message ||
-                                "Hubo un problema al eliminar la sección.",
-                        });
-                    },
-                });
-            }
-        });
-    };
-
-    const handleImportStudents = (grade: Grade, section: string) => {
-        openModal(
-            <ImportStudentForm
-                academicYearId={currentYear.id}
-                grade={grade.name}
-                section={section}
-                onCloseModal={closeModal}
-            />
-        );
-    };
-
-    const handleShowStudents = (grade: Grade, section: Section) => {
-        openModal(
-            <div>
-                <h2 className="mb-4 text-xl font-semibold text-center text-gray-700 sm:text-2xl dark:text-gray-100">
-                    Lista de estudiantes
-                </h2>
-                <ol className="px-4 mb-4 overflow-auto text-gray-700 list-decimal max-h-96 dark:text-gray-100">
-                    <li className="ml-3">Sin estudiantes</li>
-                </ol>
-                <div className="px-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <button
-                        className="inline-flex items-center justify-center w-full gap-2 px-4 py-2 mb-4 text-gray-100 bg-blue-500 rounded-md"
-                        onClick={() =>
-                            handleImportStudents(grade, section.name)
-                        }
-                    >
-                        <Upload size={16} className="mr-2" />
-                        Volver a importar estudiantes
-                    </button>
-                </div>
-            </div>
         );
     };
 
@@ -193,23 +93,14 @@ const Classrooms = ({
                                                 key={section.name}
                                                 grade={grade}
                                                 section={section}
-                                                handleEditSection={() =>
-                                                    handleEditSection(
-                                                        grade,
-                                                        section
-                                                    )
+                                                openModal={openModal}
+                                                closeModal={closeModal}
+                                                currentYear={currentYear}
+                                                assignedTeachers={
+                                                    assignedTeachers
                                                 }
-                                                handleDeleteSection={
-                                                    handleDeleteSection
-                                                }
-                                                handleImportStudents={() =>
-                                                    handleImportStudents(
-                                                        grade,
-                                                        section.name
-                                                    )
-                                                }
-                                                handleShowStudents={
-                                                    handleShowStudents
+                                                unassignedTeachers={
+                                                    unassignedTeachers
                                                 }
                                             />
                                         ))}

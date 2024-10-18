@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('teacher_id')->constrained();
+            $table->foreignId('teacher_id')->constrained()->onDelete('cascade');
             $table->enum('status', StudentStatusEnum::values())->default(StudentStatusEnum::Active->value);
             $table->timestamps();
         });
