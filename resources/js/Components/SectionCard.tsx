@@ -4,7 +4,7 @@ import StudentList from "@/Sections/Admin/Classrooms/StudentList";
 import { AcademicYear, Grade, Section, Teacher, User } from "@/types";
 import { router } from "@inertiajs/react";
 import { Eye, PencilIcon, Trash2Icon, Upload } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import Swal from "sweetalert2";
 
 type Props = {
@@ -15,7 +15,6 @@ type Props = {
     currentYear: AcademicYear;
     assignedTeachers: Teacher[];
     unassignedTeachers: User[];
-    teacherId: number;
 };
 
 export default function SectionCard({
