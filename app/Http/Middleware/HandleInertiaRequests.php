@@ -42,10 +42,7 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
-            'flash' => [
-                'message' => fn () => $request->session()->get('message'),
-            ],
-            'academicYears' => AcademicYear::all(),
+            'academicYears' => AcademicYear::select('id', 'year')->get(),
         ];
     }
 }

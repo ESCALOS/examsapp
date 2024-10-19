@@ -26,8 +26,6 @@ class StoreStudentExamReviewRequest extends FormRequest
         return [
             'student.id' => 'required|exists:students,id',
             'exam.id' => 'required|exists:exams,id',
-            'exam.questions' => 'required|array',
-            'exam.questions.*.question_number' => 'required|integer',
             'answers' => 'required|array',
             'answers.*' => 'nullable|in:A,B,C,D,E', // Las posibles respuestas
         ];

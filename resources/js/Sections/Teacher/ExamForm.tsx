@@ -1,16 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { X, ArrowLeft } from "lucide-react";
-import { Exam, Student } from "@/types";
+import { Student } from "@/types";
 import StudentList from "./StudentList";
 import { useForm } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import { MdiExchange } from "@/Components/Icons/MdiExchange";
-import { useEvaluatedStudents } from "@/hooks/useEvaluatedStudents";
+import { separateStudents } from "@/utils";
+import QuestionContainer from "./QuestionContainer";
+
+type Exam = {
+    id: number;
+    name: string;
+};
 interface ExamFormProps {
     exam: Exam;
     students: Student[];
     questionCount: number;
     onClose: () => void;
+    evaluatedStudentIds: number[];
 }
 
 interface FormProps {
@@ -24,6 +31,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
     students,
     questionCount,
     onClose,
+    evaluatedStudentIds,
 }) => {
     const { data, setData, post, processing } = useForm<FormProps>(
         `ReviewExam${exam.id}`,
@@ -33,43 +41,66 @@ const ExamForm: React.FC<ExamFormProps> = ({
             answers: Array(questionCount).fill(null),
         }
     );
-    // Inicializa el estado examAnswers a partir de data.exam
-    const [examAnswers, setExamAnswers] = useState<{ student_id: number }[]>(
-        exam.answers.map((answer) => ({
-            student_id: answer.student_id,
-        }))
+
+    const { evaluated, notEvaluated } = separateStudents(
+        students,
+        evaluatedStudentIds
     );
 
-    const { evaluatedStudents, notEvaluatedStudents } = useEvaluatedStudents(
-        examAnswers,
-        students
-    );
+    const [evaluatedStudents, setEvaluatedStudents] =
+        useState<Student[]>(evaluated);
+    const [notEvaluatedStudents, setNotEvaluatedStudents] =
+        useState<Student[]>(notEvaluated);
 
     const [showEvaluated, setShowEvaluated] = useState(
         notEvaluatedStudents.length === 0
     );
+
     const handleStudentSelect = (student: Student) => {
-        // Encuentra las respuestas del estudiante seleccionado si ya existen
-        const existingAnswers = exam.answers.filter(
-            (answer) => answer.student_id === student.id
-        );
-
-        // Si hay respuestas previas, crea un array con las respuestas en el índice correcto
-        const prefilledAnswers = Array(questionCount).fill(null);
-        existingAnswers.forEach((answer) => {
-            prefilledAnswers[answer.question_number - 1] = answer.answer;
-        });
-
-        // Actualiza los datos del formulario con el estudiante y las respuestas prellenadas
-        setData((prevData) => ({
-            ...prevData,
-            student: student,
-            answers: prefilledAnswers,
-        }));
+        if (showEvaluated) {
+            // Encuentra las respuestas del estudiante seleccionado si ya existen
+            Swal.showLoading(Swal.getDenyButton());
+            fetch(
+                route("teacher.exams.show-answers-by-student", {
+                    examId: exam.id,
+                    studentId: student.id,
+                })
+            )
+                .then((response) => {
+                    // Verifica si la respuesta es correcta (status 200)
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json(); // Parsea la respuesta JSON
+                })
+                .then((data) => {
+                    setData((prevData) => ({
+                        ...prevData,
+                        student: student,
+                        answers: data,
+                    }));
+                    Swal.close();
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error al cargar las respuestas",
+                        text: "Revisa tu conexión y vuelve a intentarlo",
+                    });
+                    console.error("Error fetching data:", error); // Manejo de errores
+                });
+        } else {
+            setData((prevData) => ({
+                ...prevData,
+                student: student,
+                answers: Array(questionCount).fill(null),
+            }));
+            console.log("sin llenar", data.answers);
+        }
     };
 
     const handleBackToList = () => {
-        if (notEvaluatedStudents.length === 1) {
+        if (notEvaluated.length === 1) {
             setShowEvaluated(true);
             Swal.fire({
                 icon: "success",
@@ -79,6 +110,27 @@ const ExamForm: React.FC<ExamFormProps> = ({
         }
 
         setData("student", null);
+    };
+
+    // Función para mover un estudiante de no evaluado a evaluado
+    const markAsEvaluated = (studentId: number) => {
+        // Buscar el estudiante en el array de no evaluados
+        const studentToEvaluate = notEvaluatedStudents.find(
+            (student) => student.id === studentId
+        );
+
+        if (studentToEvaluate) {
+            // Actualizar el estado
+            setEvaluatedStudents((prevEvaluated) => [
+                ...prevEvaluated,
+                studentToEvaluate,
+            ]); // Añadir al array de evaluados
+
+            // Remover del array de no evaluados
+            setNotEvaluatedStudents((prevNotEvaluated) =>
+                prevNotEvaluated.filter((student) => student.id !== studentId)
+            );
+        }
     };
 
     const handleAnswerSelection = (
@@ -101,7 +153,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
         if (data.student) {
             const uri = route("teacher.exams.review");
             post(uri, {
-                preserveScroll: true,
+                preserveState: true,
                 only: ["exams"],
                 onProgress: () => {
                     Swal.fire({
@@ -110,26 +162,15 @@ const ExamForm: React.FC<ExamFormProps> = ({
                         confirmButtonText: "Aceptar",
                     });
                 },
-                onSuccess: (page) => {
+                onSuccess: () => {
                     Swal.fire({
                         title: "Evaluación guardada",
                         icon: "success",
                         confirmButtonText: "Aceptar",
                     });
-                    // Extrae las nuevas respuestas desde la respuesta del servidor
-                    const updatedAnswers =
-                        page.props.exams.find((e: Exam) => e.id === exam.id)
-                            ?.answers || [];
-
-                    exam.answers = updatedAnswers;
-
-                    // Actualiza el estado examAnswers
-                    setExamAnswers(
-                        updatedAnswers.map((answer) => ({
-                            student_id: answer.student_id,
-                        }))
-                    );
-
+                    if (data.student) {
+                        markAsEvaluated(data.student.id);
+                    }
                     handleBackToList();
                 },
                 onError: () => {
@@ -140,6 +181,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
                     });
                 },
             });
+            console.log("data", data);
         }
     };
 
@@ -185,38 +227,10 @@ const ExamForm: React.FC<ExamFormProps> = ({
                         <ArrowLeft size={16} className="mr-2" />
                         Volver a la lista
                     </button>
-                    <div className="max-h-[60vh] overflow-y-auto pr-2 grid grid-cols-1 sm:grid-cols-2 gap-2 justify-center items-center max-w-2xl">
-                        {Array.from({ length: questionCount }, (_, index) => (
-                            <div
-                                key={index}
-                                className="flex flex-col items-center justify-center py-2 border dark:border-gray-700"
-                            >
-                                <p className="mb-2 font-medium">
-                                    Pregunta {index + 1}
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                    {["A", "B", "C", "D", "E"].map((option) => (
-                                        <button
-                                            key={option}
-                                            onClick={() =>
-                                                handleAnswerSelection(
-                                                    index,
-                                                    option
-                                                )
-                                            }
-                                            className={`px-3 py-1 text-sm rounded-md ${
-                                                option === data.answers[index]
-                                                    ? "bg-blue-500 text-white"
-                                                    : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-                                            } hover:bg-blue-400 dark:hover:bg-blue-600 transition-colors`}
-                                        >
-                                            {option}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <QuestionContainer
+                        answers={data.answers}
+                        handleAnswerSelection={handleAnswerSelection}
+                    />
                     <div className="flex justify-end mt-6">
                         <button
                             onClick={handleSaveReview}

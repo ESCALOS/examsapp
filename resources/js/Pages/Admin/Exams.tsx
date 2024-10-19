@@ -4,11 +4,11 @@ import YearSelector from "@/Components/YearSelector";
 import { useModal } from "@/hooks/useModal";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import ExamForm from "@/Sections/Admin/Exams/ExamForm";
-import { AcademicYear, Exam, ExamsByGrade, QuestionModel } from "@/types";
+import { AcademicYear, Exam, ExamsByGrade } from "@/types";
 import { groupExamsByGrade } from "@/utils";
 import { Head, router, usePage } from "@inertiajs/react";
 import { PencilIcon, Trash2Icon, XIcon } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 
 type Props = {
@@ -40,24 +40,32 @@ const Exams = ({ selectedYear, exams }: Props) => {
         );
     };
 
-    const handleEditExam = (
-        grade: ExamsByGrade,
-        questionsNumber: number,
-        examId: number,
-        name: string,
-        questions: QuestionModel[]
-    ) => {
-        openModal(
-            <ExamForm
-                academicYear={currentYear}
-                grade={grade.name}
-                questionsNumber={questionsNumber}
-                closeModal={closeModal}
-                examId={examId}
-                questions={questions}
-                name={name}
-            />
-        );
+    const handleEditExam = (grade: ExamsByGrade, exam: Exam) => {
+        Swal.showLoading(Swal.getDenyButton());
+        fetch(`/admin/examenes/mostrar-preguntas-por-examen/${exam.id}`)
+            .then((response) => {
+                // Verifica si la respuesta es correcta (status 200)
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json(); // Parsea la respuesta JSON
+            })
+            .then((data) => {
+                openModal(
+                    <ExamForm
+                        academicYear={currentYear}
+                        grade={grade.name}
+                        questionsNumber={data.length}
+                        closeModal={closeModal}
+                        exam={exam}
+                        questions={data}
+                    />
+                );
+                Swal.close();
+            })
+            .catch((error) => {
+                console.error("Error fetching data:", error); // Manejo de errores
+            });
     };
 
     const handleDeleteExam = (id: number) => {
@@ -75,6 +83,7 @@ const Exams = ({ selectedYear, exams }: Props) => {
                     method: "delete",
                     data: { id: id },
                     only: ["exams"],
+                    preserveState: true,
                     onSuccess: () => {
                         // Si la solicitud fue exitosa
                         Swal.fire({
@@ -170,13 +179,7 @@ const Exams = ({ selectedYear, exams }: Props) => {
                                                         onClick={() =>
                                                             handleEditExam(
                                                                 grade,
-                                                                exam.questions
-                                                                    ?.length ||
-                                                                    0,
-                                                                exam.id,
-                                                                exam.name,
-                                                                exam.questions ||
-                                                                    []
+                                                                exam
                                                             )
                                                         }
                                                     >

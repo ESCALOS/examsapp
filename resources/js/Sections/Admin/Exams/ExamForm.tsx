@@ -1,4 +1,4 @@
-import { AcademicYear, Grade, Question, QuestionModel } from "@/types";
+import { AcademicYear, Exam, Grade, Question, QuestionModel } from "@/types";
 import {
     createQuestions,
     transformQuestions,
@@ -9,8 +9,7 @@ import { Minus, Plus } from "lucide-react";
 import Swal from "sweetalert2";
 
 type Props = {
-    examId?: number;
-    name?: string;
+    exam?: Exam;
     grade: string;
     academicYear: AcademicYear;
     questionsNumber: number;
@@ -27,28 +26,23 @@ type FormProps = {
 };
 
 export default function ExamForm({
-    examId,
-    name,
+    exam,
     grade,
     academicYear,
     questionsNumber,
     closeModal,
     questions,
 }: Props) {
-    const formName = examId === undefined ? "CreateExam" : `EditExam${examId}`;
-    const { data, setData, post, processing, isDirty } = useForm<FormProps>(
-        formName,
-        {
-            id: examId,
-            name: name || "",
-            grade: grade,
-            academicYearId: academicYear.id,
-            questions:
-                questions === undefined
-                    ? createQuestions(questionsNumber)
-                    : transformQuestions(questions),
-        }
-    );
+    const { data, setData, post, processing } = useForm<FormProps>({
+        id: exam?.id,
+        name: exam?.name || "",
+        grade: grade,
+        academicYearId: academicYear.id,
+        questions:
+            questions === undefined
+                ? createQuestions(questionsNumber)
+                : transformQuestions(questions),
+    });
     const validAnswers = ["A", "B", "C", "D", "E"];
 
     const addQuestion = () => {
@@ -90,39 +84,40 @@ export default function ExamForm({
             return;
         }
         const uri =
-            examId === undefined
+            exam === undefined
                 ? route("admin.exams.add-exam")
                 : route("admin.exams.update-exam");
         post(uri, {
-            preserveScroll: true,
+            preserveState: true,
             only: ["exams"],
             onProgress: () => {
                 // Si la solicitud está en curso
                 Swal.fire({
                     icon: "info",
                     title:
-                        examId === undefined
+                        exam === undefined
                             ? "Creando examen..."
                             : "Actualizando examen",
                     text:
-                        examId === undefined
+                        exam === undefined
                             ? "El examen se está creando"
                             : "El examense está actualizando",
                 });
             },
             onSuccess: () => {
                 // Si la solicitud fue exitosa
+                setData("questions", [{ id: 1, correctAnswer: null }]);
                 Swal.fire({
                     icon: "success",
                     title:
-                        examId === undefined
+                        exam === undefined
                             ? "¡Examen Creado!"
                             : "¡Examen Actualizado!",
                     text: "El examen se creó exitosamente",
                 });
                 closeModal();
             },
-            onError: (page) => {
+            onError: () => {
                 // Si hubo algún error, mostrarlo en SweetAlert
                 Swal.fire({
                     icon: "warning",
@@ -135,11 +130,8 @@ export default function ExamForm({
     return (
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             <h2 className="mb-4 text-xl font-semibold text-center text-gray-700 sm:text-2xl dark:text-gray-100">
-                {examId === undefined ? "Nuevo Examen" : "Editar Examen"}
+                {exam === undefined ? "Nuevo Examen" : "Editar Examen"}
             </h2>
-            {isDirty && (
-                <div className="text-amber-500">* Hay cambios sin guardar</div>
-            )}
             <div className="flex flex-wrap items-center justify-center gap-4">
                 <input
                     type="text"
@@ -206,9 +198,7 @@ export default function ExamForm({
                     className="px-4 py-2 text-sm text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600"
                     disabled={processing}
                 >
-                    {examId === undefined
-                        ? "Crear Examen"
-                        : "Actualizar Examen"}
+                    {exam === undefined ? "Crear Examen" : "Actualizar Examen"}
                 </button>
             </div>
         </form>

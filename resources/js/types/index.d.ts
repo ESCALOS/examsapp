@@ -63,8 +63,6 @@ export interface Section {
 }
 
 export interface QuestionModel {
-    id: number;
-    exam_id: number;
     question_number: number;
     correct_answer: string;
 }
@@ -81,10 +79,8 @@ export interface Answer {
 export interface Exam {
     id: number;
     name: string;
-    academicYearId: number;
     grade: string;
-    questions: QuestionModel[];
-    answers: Answer[];
+    students_evaluated: number;
 }
 
 export interface ExamsByGrade {

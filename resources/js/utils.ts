@@ -1,4 +1,5 @@
 import {
+    Answer,
     Exam,
     ExamsByGrade,
     Grade,
@@ -167,9 +168,10 @@ export const calculateAnswersSummary = (
     return { correct, incorrect, notAnswered };
 };
 
-export const generateRanking = (exam: Exam) => {
-    const { questions, answers } = exam;
-
+export const generateRanking = (
+    questions: QuestionModel[],
+    answers: Answer[]
+) => {
     // Calcular respuestas correctas, incorrectas y en blanco por estudiante
     const studentsMap = new Map<
         number,
@@ -219,3 +221,21 @@ export const generateRanking = (exam: Exam) => {
         };
     });
 };
+
+export function separateStudents(
+    students: Student[],
+    evaluatedIds: number[]
+): { evaluated: Student[]; notEvaluated: Student[] } {
+    const evaluated: Student[] = [];
+    const notEvaluated: Student[] = [];
+
+    students.forEach((student) => {
+        if (evaluatedIds.includes(student.id)) {
+            evaluated.push(student);
+        } else {
+            notEvaluated.push(student);
+        }
+    });
+
+    return { evaluated, notEvaluated };
+}

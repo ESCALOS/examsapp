@@ -101,11 +101,7 @@ export default function SectionCard({
 
     const handleShowStudents = async (teacherId: number) => {
         // Hacer la solicitud para obtener estudiantes
-        Swal.fire({
-            icon: "info",
-            title: "Obteniendo estudiantes...",
-            text: "Estudiantes se están obteniendo",
-        });
+        Swal.showLoading(Swal.getDenyButton());
         fetch(`/admin/aulas/mostrar-estudiantes-por-docente/${teacherId}`)
             .then((response) => {
                 // Verifica si la respuesta es correcta (status 200)
@@ -115,11 +111,7 @@ export default function SectionCard({
                 return response.json(); // Parsea la respuesta JSON
             })
             .then((data) => {
-                Swal.fire({
-                    icon: "success",
-                    title: "¡Estudiantes obtenidos!",
-                    text: "Estudiantes obtenidos exitosamente",
-                });
+                Swal.close();
                 openModal(<StudentList students={data} />);
             })
             .catch((error) => {

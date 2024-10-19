@@ -19,30 +19,23 @@ function StudentList({ students }: Props) {
         );
     };
 
-    const handleDeleteStudent = (studentId: number) => {
+    const handleDeleteStudent = (student: { id: number; name: string }) => {
         Swal.fire({
             icon: "warning",
-            title: "Advertencia",
-            text: "Esta acción no se puede deshacer",
+            title: "¿Eliminar al estudiante?",
+            text: student.name,
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             confirmButtonText: "Sí, eliminar estudiante",
         }).then((result) => {
             if (result.isConfirmed) {
+                Swal.showLoading(Swal.getDenyButton());
                 router.visit(route("admin.classrooms.delete-student"), {
                     method: "delete",
-                    data: { id: studentId },
+                    data: { id: student.id },
                     only: ["assignedTeachers"],
                     preserveState: true,
-                    onProgress: () => {
-                        // Si la solicitud está en curso
-                        Swal.fire({
-                            icon: "info",
-                            title: "Eliminando...",
-                            text: "El estudiante se está eliminando",
-                        });
-                    },
                     onSuccess: () => {
                         // Si la solicitud fue exitosa
                         Swal.fire({
@@ -50,7 +43,7 @@ function StudentList({ students }: Props) {
                             title: "¡Eliminado!",
                             text: "El estudiante se ha eliminado correctamente",
                         });
-                        deleteStudent(studentId);
+                        deleteStudent(student.id);
                     },
                     onError: (page) => {
                         // Si hubo algún error, mostrarlo en SweetAlert
@@ -80,7 +73,7 @@ function StudentList({ students }: Props) {
                         >
                             <span>{student.name}</span>
                             <button
-                                onClick={() => handleDeleteStudent(student.id)}
+                                onClick={() => handleDeleteStudent(student)}
                                 className="ml-2 text-red-500 hover:text-red-700"
                             >
                                 Eliminar

@@ -9,6 +9,7 @@ use App\Models\AcademicYear;
 use App\Models\Exam;
 use App\Models\ExamQuestion;
 use App\Models\Student;
+use App\Models\StudentExamAnswer;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,7 @@ class ExamController extends Controller
         }
 
         // Buscar el año académico según el slug del año
-        $academicYear = AcademicYear::where('year', $year)->firstOrFail();
+        $academicYear = AcademicYear::where('year', $year)->select('id', 'year')->firstOrFail();
         $user = Auth::user();
         $teacherId = Auth::user()->role === RoleEnum::TEACHER ? $user->id : 0;
 
@@ -36,31 +37,40 @@ class ExamController extends Controller
 
             if ($teacher) {
                 // Obtener todos los exámenes y filtrar las respuestas mediante subconsulta
-                $exams = Exam::with(['questions'])
-                    ->where('academic_year_id', $academicYear->id)
+                $exams = Exam::where('academic_year_id', $academicYear->id)
                     ->where('grade', $teacher->grade)
-                    ->get();
+                    ->withCount(['answers as students_evaluated' => function ($query) use ($teacher) {
+                        $query->whereHas('student', function ($studentQuery) use ($teacher) {
+                            $studentQuery->where('teacher_id', $teacher->id);
+                        })->select(DB::raw('COUNT(DISTINCT(student_id))'));
+                    }])
+                    ->get(['id', 'name', 'grade']);
 
                 $students = Student::where('teacher_id', $teacher->id)
                     ->get();
 
                 return Inertia::render('Teacher/Exams', [
                     'year' => $year,
-                    'academicYears' => AcademicYear::all(),
+                    'academicYears' => AcademicYear::select('id', 'year')->get(),
                     'selectedYear' => $academicYear,
                     'exams' => $exams,
                     'students' => $students,
                 ]);
+            } else {
+                return Inertia::render('Teacher/Exams', [
+                    'year' => $year,
+                    'academicYears' => AcademicYear::select('id', 'year')->get(),
+                    'selectedYear' => $academicYear,
+                    'exams' => [],
+                ]);
             }
         } else {
             // Si no es un profesor, obtener todos los exámenes
-            $exams = Exam::with(['questions'])
-                ->where('academic_year_id', $academicYear->id)
-                ->get();
+            $exams = Exam::where('academic_year_id', $academicYear->id)->select('id', 'name', 'grade')->get();
 
             return Inertia::render('Admin/Exams', [
                 'year' => $year,
-                'academicYears' => AcademicYear::all(),
+                'academicYears' => AcademicYear::select('id', 'year')->get(),
                 'selectedYear' => $academicYear,
                 'exams' => $exams,
             ]);
@@ -96,20 +106,38 @@ class ExamController extends Controller
         return back()->with('message', 'Se ha creado el examen correctamente');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Exam $exam)
+    public function getEvaluatedStudentsByExam(int $examId, int $academicYearId)
     {
-        //
+        $teacher = Teacher::where('user_id', Auth::user()->id)->where('academic_year_id', $academicYearId)->first();
+
+        $exam = Exam::with('questions')->find($examId);
+
+        $evaluatedStudentIds = StudentExamAnswer::where('exam_id', $examId)
+            ->whereHas('student', function ($query) use ($teacher) {
+                $query->where('teacher_id', $teacher->id);
+            })
+            ->pluck('student_id') // Obtén solo los IDs de los estudiantes
+            ->unique()
+            ->values()
+            ->toArray(); // Elimina los IDs duplicados
+
+        // Mapeamos solo el id, name y la cantidad de preguntas
+        $examData = [
+            'academic_year_id' => $academicYearId,
+            'id' => $exam->id,
+            'name' => $exam->name,
+            'questions_count' => $exam->questions->count(), // Obtenemos la cantidad de preguntas
+            'evaluated_student_ids' => $evaluatedStudentIds,
+        ];
+
+        return response()->json($examData);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Exam $exam)
+    public function getAnswersByStudent(int $studentId)
     {
-        //
+        $answers = StudentExamAnswer::where('student_id', $studentId)->select('exam_id', 'question_number', 'answer')->get();
+
+        return response()->json($answers);
     }
 
     /**

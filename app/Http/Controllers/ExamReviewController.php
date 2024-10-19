@@ -15,18 +15,20 @@ class ExamReviewController extends Controller
         $examId = $validated['exam']['id'];
         $answers = $validated['answers'];
 
-        // Itera sobre las respuestas y guarda cada una en la base de datos
-        foreach ($validated['exam']['questions'] as $index => $question) {
-            StudentExamAnswer::updateOrCreate(
-                [
-                    'student_id' => $studentId,
-                    'exam_id' => $examId,
-                    'question_number' => $question['question_number'],
-                ],
-                [
-                    'answer' => $answers[$index], // Respuesta seleccionada
-                ]
-            );
+        // Iterar sobre las respuestas y guardarlas
+        foreach ($answers as $questionNumber => $answer) {
+            if ($answer !== null) { // Guardar solo si la respuesta no es nula
+                StudentExamAnswer::updateOrCreate(
+                    [
+                        'student_id' => $studentId,
+                        'exam_id' => $examId,
+                        'question_number' => $questionNumber + 1, // Ajustar el número de la pregunta
+                    ],
+                    [
+                        'answer' => $answer,
+                    ]
+                );
+            }
         }
 
         return back()->with('message', 'Revisión guardada exitosamente');

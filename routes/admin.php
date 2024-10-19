@@ -25,6 +25,7 @@ Route::prefix('examenes')->name('exams.')->controller(ExamController::class)->gr
     Route::post('/agregar-examen', 'store')->name('add-exam');
     Route::post('/actualizar-examen', 'update')->name('update-exam');
     Route::delete('/eliminar-examen', 'destroy')->name('delete-exam');
+    Route::get('/mostrar-preguntas-por-examen/{examId}', 'getQuestionsByExam')->name('show-questions-by-exam');
 });
 
 Route::prefix('docentes')->name('teachers.')->controller(TeacherController::class)->group(function () {
