@@ -3,7 +3,6 @@ import { CheckCircle, Clock, Award, SquareCheckBig } from "lucide-react";
 import { AcademicYear, Exam, Student } from "@/types";
 import Swal from "sweetalert2";
 import ExamForm from "@/Sections/Teacher/ExamForm";
-import { generateRanking } from "@/utils";
 import RankedList from "@/Sections/Teacher/RankedList";
 
 interface ExamReviewCardProps {
@@ -55,7 +54,6 @@ const ExamReviewCard: React.FC<ExamReviewCardProps> = ({
                         evaluatedStudentIds={data.evaluated_student_ids}
                         onClose={closeModal}
                         questionCount={data.questions_count || 0}
-                        onViewRankings={handleViewRanking}
                         onEvaluateStudent={handleIncrementEvaluatedStudents}
                     />
                 );
@@ -71,10 +69,7 @@ const ExamReviewCard: React.FC<ExamReviewCardProps> = ({
             });
     };
 
-    const handleViewRanking = (currentExam?: Exam) => {
-        if (currentExam === undefined) {
-            currentExam = exam;
-        }
+    const handleViewRanking = () => {
         if (evaluatedStudents === 0) {
             Swal.fire({
                 icon: "warning",
@@ -173,7 +168,7 @@ const ExamReviewCard: React.FC<ExamReviewCardProps> = ({
                     Revisar Examen
                 </button>
                 <button
-                    onClick={() => handleViewRanking()}
+                    onClick={handleViewRanking}
                     className="flex items-center justify-center flex-1 px-4 py-2 text-sm text-white transition-colors bg-purple-500 rounded-md hover:bg-purple-600"
                 >
                     <Award size={16} className="mr-2" />

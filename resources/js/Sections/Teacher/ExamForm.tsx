@@ -14,7 +14,6 @@ interface ExamFormProps {
     questionCount: number;
     onClose: () => void;
     evaluatedStudentIds: number[];
-    onViewRankings: (exam: Exam) => void;
     onEvaluateStudent: () => void;
 }
 
@@ -30,7 +29,6 @@ const ExamForm: React.FC<ExamFormProps> = ({
     questionCount,
     onClose,
     evaluatedStudentIds,
-    onViewRankings,
     onEvaluateStudent,
 }) => {
     const { data, setData, post, processing } = useForm<FormProps>(
@@ -164,11 +162,6 @@ const ExamForm: React.FC<ExamFormProps> = ({
                     });
                 },
                 onSuccess: () => {
-                    Swal.fire({
-                        title: "Evaluación guardada",
-                        icon: "success",
-                        confirmButtonText: "Aceptar",
-                    });
                     if (!showEvaluated && data.student) {
                         markAsEvaluated(data.student.id);
                         onEvaluateStudent();
@@ -176,11 +169,23 @@ const ExamForm: React.FC<ExamFormProps> = ({
 
                     if (notEvaluatedStudents.length === 1) {
                         setData("student", null);
-                        onViewRankings({
-                            ...exam,
-                            students_evaluated: evaluatedStudents.length + 1,
+                        Swal.fire({
+                            title: "¡Todos los estudiantes han sido evaluados!",
+                            text: "¡Ya puedes ver la tabla de puntajes!",
+                            icon: "success",
+                            confirmButtonText: "Aceptar",
                         });
+                        onClose();
+                        // onViewRankings({
+                        //     ...exam,
+                        //     students_evaluated: evaluatedStudents.length + 1,
+                        // });
                     } else {
+                        Swal.fire({
+                            title: "Evaluación guardada",
+                            icon: "success",
+                            confirmButtonText: "Aceptar",
+                        });
                         handleBackToList();
                     }
                 },
