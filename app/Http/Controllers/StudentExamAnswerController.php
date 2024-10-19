@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Exam;
+use App\Models\ExamQuestion;
 use App\Models\StudentExamAnswer;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 
 class StudentExamAnswerController extends Controller
@@ -48,5 +51,80 @@ class StudentExamAnswerController extends Controller
         }
 
         return back()->with('message', 'Respuestas guardadas correctamente');
+    }
+
+    public function getRankingByExamAndSection(int $examId)
+    {
+        // Encuentra el examen por ID
+        $exam = Exam::findOrFail($examId);
+
+        // Obtén las preguntas y sus respuestas correctas del examen
+        $questions = ExamQuestion::where('exam_id', $examId)
+            ->select('question_number', 'correct_answer')
+            ->get()
+            ->toArray(); // Convertir a array para asegurar su iteración correcta
+
+        // Obtén al profesor relacionado con el examen
+        $teacher = Teacher::where('academic_year_id', $exam->academic_year_id)->first();
+
+        // Obtén las respuestas de los estudiantes
+        $answers = StudentExamAnswer::with('student:id,name,status')
+            ->where('exam_id', $examId)
+            ->whereHas('student', function ($query) use ($teacher) {
+                $query->where('teacher_id', $teacher->id);
+            })
+            ->get(['student_id', 'question_number', 'answer']);
+
+        // Inicializa el mapeo de estudiantes y sus respuestas
+        $studentsMap = [];
+
+        foreach ($answers as $answer) {
+            // Inicializa los datos del estudiante si no existen
+            if (! isset($studentsMap[$answer->student_id])) {
+                $studentsMap[$answer->student_id] = [
+                    'student' => $answer->student,
+                    'correct' => 0,
+                    'incorrect' => 0,
+                    'blank' => 0,
+                ];
+            }
+
+            // Encuentra la respuesta correcta para la pregunta
+            $correctAnswer = collect($questions)->firstWhere('question_number', $answer->question_number)['correct_answer'] ?? null;
+
+            // Lógica para determinar si la respuesta es correcta, incorrecta o en blanco
+            if ($answer->answer === null) {
+                $studentsMap[$answer->student_id]['blank']++;
+            } elseif ($answer->answer === $correctAnswer) {
+                $studentsMap[$answer->student_id]['correct']++;
+            } else {
+                $studentsMap[$answer->student_id]['incorrect']++;
+            }
+        }
+
+        // Convertir a un array, ordenar por respuestas correctas y generar el ranking
+        $sortedStudents = collect($studentsMap)
+            ->sortByDesc('correct')
+            ->values();
+
+        // Asignar posiciones en el ranking
+        $rank = 1;
+        $previousScore = $sortedStudents[0]['correct'] ?? 0;
+
+        $sortedStudents = $sortedStudents->map(function ($studentData, $index) use (&$rank, &$previousScore) {
+            if ($studentData['correct'] !== $previousScore) {
+                $rank = $index + 1;
+                $previousScore = $studentData['correct'];
+            }
+
+            $studentData['rank'] = $rank;
+
+            return $studentData;
+        });
+
+        // Retornar el ranking calculado al cliente
+        return response()->json([
+            'ranking' => $sortedStudents,
+        ]);
     }
 }

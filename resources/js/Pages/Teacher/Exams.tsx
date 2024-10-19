@@ -3,13 +3,9 @@ import Modal from "@/Components/Modal";
 import YearSelector from "@/Components/YearSelector";
 import { useModal } from "@/hooks/useModal";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import ExamForm from "@/Sections/Teacher/ExamForm";
 import { AcademicYear, Exam, Student } from "@/types";
-import { generateRanking } from "@/utils";
 import { Head, router, usePage } from "@inertiajs/react";
-import { X } from "lucide-react";
 import { useState } from "react";
-import Swal from "sweetalert2";
 
 type Props = {
     year: string;
@@ -36,61 +32,6 @@ export default function Exams({ selectedYear, exams, students }: Props) {
         });
     };
 
-    const handleEvaluate = (exam: Exam) => {
-        Swal.showLoading(Swal.getDenyButton());
-        fetch(
-            route("teacher.exams.show-evaluated-students-by-exam", {
-                examId: exam.id,
-                academicYearId: currentYear.id,
-            })
-        )
-            .then((response) => {
-                // Verifica si la respuesta es correcta (status 200)
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json(); // Parsea la respuesta JSON
-            })
-            .then((data) => {
-                const exam = {
-                    id: data.id,
-                    name: data.name,
-                };
-                openModal(
-                    <ExamForm
-                        exam={exam}
-                        students={students}
-                        evaluatedStudentIds={data.evaluated_student_ids}
-                        onClose={closeModal}
-                        questionCount={data.questions_count || 0}
-                    />
-                );
-                Swal.close();
-            })
-            .catch((error) => {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error al cargar las preguntas",
-                    text: "Revisa tu conexión y vuelve a intentarlo",
-                });
-                console.error("Error fetching data:", error); // Manejo de errores
-            });
-    };
-
-    const handleViewRanking = (exam: Exam) => {
-        if (true) {
-            Swal.fire({
-                icon: "warning",
-                title: "Advertencia",
-                text: "Revisa algún examen primero",
-            });
-            return;
-        }
-        // const rankingList = generateRanking(exam);
-        // openModal(
-
-        // );
-    };
     return (
         <AuthenticatedLayout>
             <Head title="Inicio" />
@@ -125,16 +66,12 @@ export default function Exams({ selectedYear, exams, students }: Props) {
                                 return (
                                     <ExamReviewCard
                                         key={exam.id}
-                                        examName={exam.name}
+                                        exam={exam}
                                         status={state}
-                                        totalStudents={students.length}
-                                        evaluatedStudents={
-                                            exam.students_evaluated
-                                        }
-                                        onEvaluate={() => handleEvaluate(exam)}
-                                        onViewRankings={() =>
-                                            handleViewRanking(exam)
-                                        }
+                                        currentYear={currentYear}
+                                        openModal={openModal}
+                                        closeModal={closeModal}
+                                        students={students}
                                     />
                                 );
                             })}

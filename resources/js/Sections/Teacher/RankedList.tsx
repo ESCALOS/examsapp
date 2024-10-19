@@ -1,10 +1,8 @@
+import { Student } from "@/types";
 import { X } from "lucide-react";
-import React from "react";
 
 type RankingItem = {
-    student: {
-        name: string;
-    };
+    student: Student;
     correct: number;
     incorrect: number;
     rank: number;

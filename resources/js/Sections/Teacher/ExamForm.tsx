@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, ArrowLeft } from "lucide-react";
-import { Student } from "@/types";
+import { Exam, Student } from "@/types";
 import StudentList from "./StudentList";
 import { useForm } from "@inertiajs/react";
 import Swal from "sweetalert2";
@@ -8,16 +8,14 @@ import { MdiExchange } from "@/Components/Icons/MdiExchange";
 import { separateStudents } from "@/utils";
 import QuestionContainer from "./QuestionContainer";
 
-type Exam = {
-    id: number;
-    name: string;
-};
 interface ExamFormProps {
     exam: Exam;
     students: Student[];
     questionCount: number;
     onClose: () => void;
     evaluatedStudentIds: number[];
+    onViewRankings: (exam: Exam) => void;
+    onEvaluateStudent: () => void;
 }
 
 interface FormProps {
@@ -32,6 +30,8 @@ const ExamForm: React.FC<ExamFormProps> = ({
     questionCount,
     onClose,
     evaluatedStudentIds,
+    onViewRankings,
+    onEvaluateStudent,
 }) => {
     const { data, setData, post, processing } = useForm<FormProps>(
         `ReviewExam${exam.id}`,
@@ -95,7 +95,6 @@ const ExamForm: React.FC<ExamFormProps> = ({
                 student: student,
                 answers: Array(questionCount).fill(null),
             }));
-            console.log("sin llenar", data.answers);
         }
     };
 
@@ -154,7 +153,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
             const uri = route("teacher.exams.review");
             post(uri, {
                 preserveState: true,
-                only: ["exams"],
+                only: [],
                 onProgress: () => {
                     Swal.fire({
                         title: "Guardando evaluación",
@@ -168,10 +167,20 @@ const ExamForm: React.FC<ExamFormProps> = ({
                         icon: "success",
                         confirmButtonText: "Aceptar",
                     });
-                    if (data.student) {
+                    if (!showEvaluated && data.student) {
                         markAsEvaluated(data.student.id);
+                        onEvaluateStudent();
                     }
-                    handleBackToList();
+
+                    if (notEvaluatedStudents.length === 1) {
+                        setData("student", null);
+                        onViewRankings({
+                            ...exam,
+                            students_evaluated: evaluatedStudents.length + 1,
+                        });
+                    } else {
+                        handleBackToList();
+                    }
                 },
                 onError: () => {
                     Swal.fire({
@@ -181,7 +190,6 @@ const ExamForm: React.FC<ExamFormProps> = ({
                     });
                 },
             });
-            console.log("data", data);
         }
     };
 
