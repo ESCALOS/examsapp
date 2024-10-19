@@ -74,6 +74,8 @@ const ExamForm: React.FC<ExamFormProps> = ({
                     return response.json(); // Parsea la respuesta JSON
                 })
                 .then((data) => {
+                    // console.log("data", data);
+
                     setData((prevData) => ({
                         ...prevData,
                         student: student,
