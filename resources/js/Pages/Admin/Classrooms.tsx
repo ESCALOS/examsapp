@@ -6,7 +6,7 @@ import { useModal } from "@/hooks/useModal";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import SectionForm from "@/Sections/Admin/Classrooms/SectionForm";
 import { AcademicYear, Grade, Teacher, User } from "@/types";
-import { groupBySections } from "@/utils";
+import { availableSections, groupBySections } from "@/utils";
 import { Head, router, usePage } from "@inertiajs/react";
 import { XIcon } from "lucide-react";
 import { useState } from "react";
@@ -39,6 +39,7 @@ const Classrooms = ({
     const grades = groupBySections(assignedTeachers);
 
     const handleAddSection = (grade: Grade) => {
+        const sections = availableSections(grade.sections);
         if (grade.sections.length === 5) {
             Swal.fire({
                 icon: "warning",
@@ -53,6 +54,7 @@ const Classrooms = ({
                 academicYear={currentYear}
                 onCloseModal={closeModal}
                 unassignedTeachers={unassignedTeachers}
+                sections={sections}
             />
         );
     };

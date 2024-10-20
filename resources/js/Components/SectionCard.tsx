@@ -2,6 +2,7 @@ import ImportStudentForm from "@/Sections/Admin/Classrooms/ImportStudentForm";
 import SectionForm from "@/Sections/Admin/Classrooms/SectionForm";
 import StudentList from "@/Sections/Admin/Classrooms/StudentList";
 import { AcademicYear, Grade, Section, Teacher, User } from "@/types";
+import { availableSections } from "@/utils";
 import { router } from "@inertiajs/react";
 import { Eye, PencilIcon, Trash2Icon, Upload } from "lucide-react";
 import { ReactNode } from "react";
@@ -27,6 +28,25 @@ export default function SectionCard({
     unassignedTeachers,
 }: Props) {
     const handleEditSection = (section: Section) => {
+        const sections = availableSections(grade.sections, section.name);
+
+        if (unassignedTeachers.length === 0) {
+            Swal.fire({
+                icon: "warning",
+                title: "Advertencia",
+                text: "No hay profesores disponibles",
+            });
+            return;
+        }
+
+        if (sections.length === 0) {
+            Swal.fire({
+                icon: "warning",
+                title: "Advertencia",
+                text: "No hay secciones disponibles para este grado",
+            });
+            return;
+        }
         openModal(
             <SectionForm
                 grade={grade}
@@ -34,6 +54,7 @@ export default function SectionCard({
                 onCloseModal={closeModal}
                 unassignedTeachers={unassignedTeachers}
                 sectionName={section.name}
+                sections={sections}
                 currentTeacher={
                     assignedTeachers.find(
                         (teacher) => teacher.user_id === section.userId
@@ -55,6 +76,7 @@ export default function SectionCard({
             confirmButtonText: "Sí, eliminar sección",
         }).then((result) => {
             if (result.isConfirmed) {
+                Swal.showLoading(Swal.getDenyButton());
                 router.visit(route("admin.classrooms.delete-section"), {
                     method: "delete",
                     data: { id: id },

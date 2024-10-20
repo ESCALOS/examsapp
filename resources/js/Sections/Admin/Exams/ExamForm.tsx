@@ -5,7 +5,9 @@ import {
     validateQuestions,
 } from "@/utils";
 import { useForm } from "@inertiajs/react";
+import { log } from "console";
 import { Minus, Plus } from "lucide-react";
+import { useEffect } from "react";
 import Swal from "sweetalert2";
 
 type Props = {

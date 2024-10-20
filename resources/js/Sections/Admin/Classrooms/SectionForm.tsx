@@ -1,7 +1,6 @@
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import { AcademicYear, Grade, User } from "@/types";
-import { availableSections } from "@/utils";
 import { Select } from "@headlessui/react";
 import { useForm } from "@inertiajs/react";
 import React, { useEffect, useState } from "react";
@@ -15,6 +14,7 @@ type Props = {
     unassignedTeachers: User[];
     sectionName?: string;
     currentTeacher?: User;
+    sections: string[];
 };
 
 function SectionForm({
@@ -25,9 +25,8 @@ function SectionForm({
     currentTeacher,
     onCloseModal,
     unassignedTeachers: initialUnassignedTeachers,
+    sections,
 }: Props) {
-    const sections = availableSections(grade.sections, sectionName);
-
     // Estado para gestionar los profesores no asignados
     const [unassignedTeachers, setUnassignedTeachers] = useState<User[]>(
         initialUnassignedTeachers
@@ -49,24 +48,6 @@ function SectionForm({
         }
     }, [currentTeacher]); // Se ejecuta cuando cambia currentTeacher
 
-    if (unassignedTeachers.length === 0) {
-        Swal.fire({
-            icon: "warning",
-            title: "Advertencia",
-            text: "No hay profesores disponibles para este grado",
-        });
-        return;
-    }
-
-    if (sections.length === 0) {
-        Swal.fire({
-            icon: "warning",
-            title: "Advertencia",
-            text: "No hay secciones disponibles para este grado",
-        });
-        onCloseModal();
-        return;
-    }
     const { data, setData, processing, post, errors, reset } = useForm({
         id: sectionId,
         userId: currentTeacher?.id || unassignedTeachers[0].id,
@@ -78,6 +59,7 @@ function SectionForm({
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // Enviar la solicitud POST a la ruta 'classrooms.add-section'
+        Swal.showLoading(Swal.getDenyButton());
         const uri =
             sectionId === undefined
                 ? route("admin.classrooms.add-section")

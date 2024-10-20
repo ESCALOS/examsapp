@@ -133,6 +133,20 @@ class ExamController extends Controller
         return response()->json($examData);
     }
 
+    public function getQuestionsByExam(int $examId)
+    {
+        $exam = Exam::find($examId);
+
+        $questions = $exam->questions->map(function ($question) {
+            return [
+                'question_number' => $question->question_number,
+                'correct_answer' => $question->correct_answer,
+            ];
+        });
+
+        return response()->json($questions);
+    }
+
     public function getAnswersByStudent(int $studentId)
     {
         $answers = StudentExamAnswer::where('student_id', $studentId)->select('exam_id', 'question_number', 'answer')->get();
