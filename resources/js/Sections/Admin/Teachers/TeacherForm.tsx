@@ -24,17 +24,10 @@ function TeacherForm({ teacher, closeModal }: Props) {
             teacher === undefined
                 ? route("admin.teachers.add-teacher")
                 : route("admin.teachers.update-teacher");
+        Swal.showLoading(Swal.getDenyButton());
         post(uri, {
             preserveScroll: true,
             only: ["teachers", "activeTeachers"],
-            onProgress: () => {
-                // Si la solicitud está en curso
-                Swal.fire({
-                    icon: "info",
-                    title: "Creando...",
-                    text: "El docente se está creando",
-                });
-            },
             onSuccess: () => {
                 // Si la solicitud fue exitosa
                 Swal.fire({

@@ -89,23 +89,10 @@ export default function ExamForm({
             exam === undefined
                 ? route("admin.exams.add-exam")
                 : route("admin.exams.update-exam");
+        Swal.showLoading(Swal.getDenyButton());
         post(uri, {
             preserveState: true,
             only: ["exams"],
-            onProgress: () => {
-                // Si la solicitud está en curso
-                Swal.fire({
-                    icon: "info",
-                    title:
-                        exam === undefined
-                            ? "Creando examen..."
-                            : "Actualizando examen",
-                    text:
-                        exam === undefined
-                            ? "El examen se está creando"
-                            : "El examense está actualizando",
-                });
-            },
             onSuccess: () => {
                 // Si la solicitud fue exitosa
                 setData("questions", [{ id: 1, correctAnswer: null }]);

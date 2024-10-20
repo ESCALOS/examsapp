@@ -30,7 +30,11 @@ function StudentList({ students }: Props) {
             confirmButtonText: "Sí, eliminar estudiante",
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.showLoading(Swal.getDenyButton());
+                Swal.fire({
+                    icon: "info",
+                    title: "Eliminando...",
+                    showConfirmButton: false,
+                });
                 router.visit(route("admin.classrooms.delete-student"), {
                     method: "delete",
                     data: { id: student.id },

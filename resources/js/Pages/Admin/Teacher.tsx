@@ -36,6 +36,11 @@ function Teacher({ teachers }: Props) {
             confirmButtonText: isActive ? "Inhabilitar" : "Habilitar",
         }).then((result) => {
             if (result.isConfirmed) {
+                Swal.fire({
+                    icon: "info",
+                    title: isActive ? "Inhabilitando..." : "Habilitando...",
+                    showConfirmButton: false,
+                });
                 router.visit(route("admin.teachers.toggle-status"), {
                     method: "delete",
                     data: { id: id, is_active: isActive },
@@ -48,16 +53,6 @@ function Teacher({ teachers }: Props) {
                             text: isActive
                                 ? "El docente se ha inhabilitado"
                                 : "El docente se ha habilitado",
-                        });
-                    },
-                    onProgress: () => {
-                        // Si la solicitud está en curso
-                        Swal.fire({
-                            icon: "info",
-                            title: isActive ? "Inhabilitando" : "Habilitando",
-                            text: isActive
-                                ? "El docente se está inhabilitando"
-                                : "El docente se está habilitando",
                         });
                     },
                     onError: (page) => {

@@ -72,8 +72,6 @@ const ExamForm: React.FC<ExamFormProps> = ({
                     return response.json(); // Parsea la respuesta JSON
                 })
                 .then((data) => {
-                    // console.log("data", data);
-
                     setData((prevData) => ({
                         ...prevData,
                         student: student,
@@ -150,17 +148,11 @@ const ExamForm: React.FC<ExamFormProps> = ({
 
     const handleSaveReview = () => {
         if (data.student) {
+            Swal.showLoading(Swal.getDenyButton());
             const uri = route("teacher.exams.review");
             post(uri, {
                 preserveState: true,
                 only: [],
-                onProgress: () => {
-                    Swal.fire({
-                        title: "Guardando evaluación",
-                        icon: "info",
-                        confirmButtonText: "Aceptar",
-                    });
-                },
                 onSuccess: () => {
                     if (!showEvaluated && data.student) {
                         markAsEvaluated(data.student.id);
@@ -176,10 +168,6 @@ const ExamForm: React.FC<ExamFormProps> = ({
                             confirmButtonText: "Aceptar",
                         });
                         onClose();
-                        // onViewRankings({
-                        //     ...exam,
-                        //     students_evaluated: evaluatedStudents.length + 1,
-                        // });
                     } else {
                         Swal.fire({
                             title: "Evaluación guardada",

@@ -79,6 +79,11 @@ const Exams = ({ selectedYear, exams }: Props) => {
             confirmButtonText: "Sí, eliminar sección",
         }).then((result) => {
             if (result.isConfirmed) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Eliminando...",
+                    showConfirmButton: false,
+                });
                 router.visit(route("admin.exams.delete-exam"), {
                     method: "delete",
                     data: { id: id },

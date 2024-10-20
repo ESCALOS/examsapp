@@ -76,25 +76,22 @@ export default function SectionCard({
             confirmButtonText: "Sí, eliminar sección",
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.showLoading(Swal.getDenyButton());
+                Swal.fire({
+                    icon: "info",
+                    title: "Eliminando...",
+                    showConfirmButton: false,
+                });
                 router.visit(route("admin.classrooms.delete-section"), {
                     method: "delete",
                     data: { id: id },
                     only: ["assignedTeachers", "unassignedTeachers"],
+                    preserveState: true,
                     onSuccess: () => {
                         // Si la solicitud fue exitosa
                         Swal.fire({
                             icon: "success",
                             title: "¡Eliminado!",
                             text: "La sección se ha eliminado correctamente",
-                        });
-                    },
-                    onProgress: () => {
-                        // Si la solicitud está en curso
-                        Swal.fire({
-                            icon: "info",
-                            title: "Eliminando...",
-                            text: "La sección se está eliminando",
                         });
                     },
                     onError: (page) => {
