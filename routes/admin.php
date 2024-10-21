@@ -3,6 +3,7 @@
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\StudentExamAnswerController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,3 +37,5 @@ Route::prefix('docentes')->name('teachers.')->controller(TeacherController::clas
 });
 
 Route::post('academic-year', [AcademicYearController::class, 'store'])->name('academic-year.store');
+
+Route::get('/examenes/obtener-ranking-por-examen/{examId}', [StudentExamAnswerController::class, 'getRankingByExam'])->name('exams.get-ranking-by-exam');

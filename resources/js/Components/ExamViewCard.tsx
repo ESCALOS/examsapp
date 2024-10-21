@@ -3,7 +3,7 @@ import { CheckCircle, Clock, Award, SquareCheckBig } from "lucide-react";
 import { AcademicYear, Exam, Student } from "@/types";
 import Swal from "sweetalert2";
 import ExamForm from "@/Sections/Teacher/ExamForm";
-import RankedList from "@/Sections/Teacher/RankedList";
+import RankedList from "@/Components/RankedList";
 
 interface ExamReviewCardProps {
     exam: Exam;

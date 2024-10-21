@@ -6,7 +6,7 @@ import {
 } from "@/utils";
 import { useForm } from "@inertiajs/react";
 import { log } from "console";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import { useEffect } from "react";
 import Swal from "sweetalert2";
 
@@ -117,11 +117,23 @@ export default function ExamForm({
         });
     };
     return (
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-            <h2 className="mb-4 text-xl font-semibold text-center text-gray-700 sm:text-2xl dark:text-gray-100">
-                {exam === undefined ? "Nuevo Examen" : "Editar Examen"}
-            </h2>
-            <div className="flex flex-wrap items-center justify-center gap-4">
+        <form
+            onSubmit={handleSubmit}
+            className="w-full max-w-3xl p-6 overflow-y-auto bg-white rounded-lg dark:bg-gray-800 dark:text-gray-100"
+        >
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    {exam === undefined ? "Nuevo Examen" : "Editar Examen"}
+                </h2>
+
+                <button
+                    onClick={closeModal}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                    <X size={20} />
+                </button>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
                 <input
                     type="text"
                     value={data.name}

@@ -28,11 +28,12 @@ function RankedList({ rankingList, closeModal }: Props) {
                     <X size={20} />
                 </button>
             </div>
-            <div className="flex flex-col gap-4 max-h-[60vh] overflow-x-auto">
-                {rankingList.map((item, index) => (
-                    <div
-                        key={index}
-                        className={`relative shadow-lg rounded-lg p-6 flex items-center space-x-4 border-l-8
+            {rankingList.length > 0 ? (
+                <div className="flex flex-col gap-4 max-h-[60vh] overflow-x-auto">
+                    {rankingList.map((item, index) => (
+                        <div
+                            key={index}
+                            className={`relative shadow-lg rounded-lg p-6 flex items-center space-x-4 border-l-8
                             ${
                                 item.rank === 1
                                     ? "bg-yellow-100 border-yellow-500 dark:bg-yellow-700"
@@ -48,25 +49,30 @@ function RankedList({ rankingList, closeModal }: Props) {
                                     ? "bg-white dark:bg-gray-800 border-indigo-500 dark:border-indigo-400"
                                     : ""
                             }`}
-                    >
-                        <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200">
-                                {item.student.name}
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                <span className="font-bold text-green-600 dark:text-green-400">
-                                    {item.correct}
-                                </span>{" "}
-                                correctas,{" "}
-                                <span className="font-bold text-red-600 dark:text-red-400">
-                                    {item.incorrect}
-                                </span>{" "}
-                                incorrectas
-                            </p>
+                        >
+                            <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200">
+                                    {item.student.name}
+                                </h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
+                                    <span className="font-bold text-green-600 dark:text-green-400">
+                                        {item.correct}
+                                    </span>{" "}
+                                    correctas,{" "}
+                                    <span className="font-bold text-red-600 dark:text-red-400">
+                                        {item.incorrect}
+                                    </span>{" "}
+                                    incorrectas
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                <h2 className="text-2xl font-bold">
+                    No hay estudiantes para clasificar
+                </h2>
+            )}
         </div>
     );
 }

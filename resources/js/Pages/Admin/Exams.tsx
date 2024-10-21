@@ -1,5 +1,6 @@
 import GradeCollapse from "@/Components/GradeCollapse";
 import Modal from "@/Components/Modal";
+import RankedList from "@/Components/RankedList";
 import YearSelector from "@/Components/YearSelector";
 import { useModal } from "@/hooks/useModal";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
@@ -8,7 +9,7 @@ import WithoutAcademicYears from "@/Sections/WithoutAcademicYears";
 import { AcademicYear, Exam, ExamsByGrade } from "@/types";
 import { groupExamsByGrade } from "@/utils";
 import { Head, router, usePage } from "@inertiajs/react";
-import { PencilIcon, Trash2Icon, XIcon } from "lucide-react";
+import { Award, PencilIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useState } from "react";
 import Swal from "sweetalert2";
 
@@ -39,6 +40,39 @@ const Exams = ({ selectedYear, exams }: Props) => {
                 closeModal={closeModal}
             />
         );
+    };
+
+    const handleViewRanking = (examId: number) => {
+        Swal.showLoading(Swal.getDenyButton());
+        fetch(
+            route("admin.exams.get-ranking-by-exam", {
+                examId: examId,
+            })
+        )
+            .then((response) => {
+                // Verifica si la respuesta es correcta (status 200)
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json(); // Parsea la respuesta JSON
+            })
+            .then((data) => {
+                openModal(
+                    <RankedList
+                        rankingList={data.ranking}
+                        closeModal={closeModal}
+                    />
+                );
+                Swal.close();
+            })
+            .catch((error) => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error al cargar las preguntas",
+                    text: "Revisa tu conexión y vuelve a intentarlo",
+                });
+                console.error("Error fetching data:", error); // Manejo de errores
+            });
     };
 
     const handleEditExam = (grade: ExamsByGrade, exam: Exam) => {
@@ -184,6 +218,20 @@ const Exams = ({ selectedYear, exams }: Props) => {
                                                         <p>{exam.name}</p>
                                                         <div className="flex items-center justify-center gap-2">
                                                             <button
+                                                                title="Ver clasificaciones"
+                                                                onClick={() =>
+                                                                    handleViewRanking(
+                                                                        exam.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Award
+                                                                    size={20}
+                                                                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                                                />
+                                                            </button>
+                                                            <button
+                                                                title="Editar examen"
                                                                 onClick={() =>
                                                                     handleEditExam(
                                                                         grade,
@@ -235,13 +283,7 @@ const Exams = ({ selectedYear, exams }: Props) => {
                         onClose={closeModal}
                         closeable={false}
                     >
-                        <div className="relative px-4 py-4 sm:px-6">
-                            <XIcon
-                                className="absolute text-gray-500 cursor-pointer top-4 right-4 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                                onClick={closeModal}
-                            />
-                            {formContent}
-                        </div>
+                        {formContent}
                     </Modal>
                 </>
             ) : (
