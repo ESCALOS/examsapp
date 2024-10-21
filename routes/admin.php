@@ -6,7 +6,7 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'Admin/Dashboard')->name('dashboard');
+// Route::inertia('/', 'Admin/Dashboard')->name('dashboard');
 
 Route::prefix('aulas')->name('classrooms.')->controller(ClassroomController::class)->group(function () {
 

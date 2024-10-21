@@ -32,14 +32,14 @@ export default function Authenticated({
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 {user.role === "admin" ? (
                                     <>
-                                        <NavLink
+                                        {/* <NavLink
                                             href={route("admin.dashboard")}
                                             active={route().current(
                                                 "admin.dashboard"
                                             )}
                                         >
                                             Inicio
-                                        </NavLink>
+                                        </NavLink> */}
                                         <NavLink
                                             href={route(
                                                 "admin.classrooms.index"
@@ -177,12 +177,12 @@ export default function Authenticated({
                     <div className="pt-2 pb-3 space-y-1">
                         {user.role === "admin" ? (
                             <>
-                                <ResponsiveNavLink
+                                {/* <ResponsiveNavLink
                                     href={route("admin.dashboard")}
                                     active={route().current("admin.dashboard")}
                                 >
                                     Inicio
-                                </ResponsiveNavLink>
+                                </ResponsiveNavLink> */}
                                 <ResponsiveNavLink
                                     href={route("admin.classrooms.index")}
                                     active={route().current(

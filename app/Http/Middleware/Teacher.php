@@ -22,7 +22,7 @@ class Teacher
 
             // Verificar si el usuario no está activo
             if ($user->role !== RoleEnum::TEACHER) {
-                return redirect()->route('admin.dashboard');
+                return redirect()->route('admin.exams.index');
             }
         }
 
