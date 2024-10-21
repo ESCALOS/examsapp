@@ -7,6 +7,7 @@ use App\Models\ExamQuestion;
 use App\Models\StudentExamAnswer;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class StudentExamAnswerController extends Controller
 {
@@ -65,7 +66,7 @@ class StudentExamAnswerController extends Controller
             ->toArray(); // Convertir a array para asegurar su iteración correcta
 
         // Obtén al profesor relacionado con el examen
-        $teacher = Teacher::where('academic_year_id', $exam->academic_year_id)->first();
+        $teacher = Teacher::where('academic_year_id', $exam->academic_year_id)->where('user_id', Auth::id())->first();
 
         // Obtén las respuestas de los estudiantes
         $answers = StudentExamAnswer::with('student:id,name,status')
@@ -125,6 +126,7 @@ class StudentExamAnswerController extends Controller
         // Retornar el ranking calculado al cliente
         return response()->json([
             'ranking' => $sortedStudents,
+            'teacher' => $teacher->id,
         ]);
     }
 
