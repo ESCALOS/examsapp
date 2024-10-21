@@ -126,7 +126,6 @@ class StudentExamAnswerController extends Controller
         // Retornar el ranking calculado al cliente
         return response()->json([
             'ranking' => $sortedStudents,
-            'teacher' => $teacher->id,
         ]);
     }
 
