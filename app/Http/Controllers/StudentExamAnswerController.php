@@ -132,7 +132,7 @@ class StudentExamAnswerController extends Controller
     public function getRankingByExam(int $examId)
     {
         // Encuentra el examen por ID
-        $exam = Exam::findOrFail($examId);
+        Exam::findOrFail($examId);
 
         // Obtén las preguntas y sus respuestas correctas del examen
         $questions = ExamQuestion::where('exam_id', $examId)
